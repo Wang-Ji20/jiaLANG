@@ -1,2 +1,2 @@
 lax: jia.flex
-	flex jia.flex; cc -lfl lex.yy.c --output example
+	flex jia.ll; cc -lfl lex.yy.c --output example
