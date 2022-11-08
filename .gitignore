@@ -30,3 +30,16 @@
 *.exe
 *.out
 *.app
+
+build
+parser.hh 
+parser.cc 
+parser.output 
+parser.xml 
+parser.html 
+parser.gv 
+location.hh
+scanner.cc
+tools/playground
+src/llvm
+.vscode

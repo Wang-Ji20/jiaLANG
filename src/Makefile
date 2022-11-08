@@ -1,13 +1,14 @@
 # This Makefile is designed to be simple and readable.  It does not
 # aim at portability.  It requires GNU Make.
 
-BASE = calc++
+BASE = main
 BISON = bison
-CXX = g++
+CXX = clang++
 FLEX = flex
 XSLTPROC = xsltproc
+CXXFLAGS = `llvm-config --cxxflags` -DLLVM_DISABLE_ABI_BREAKING_CHECKS_ENFORCING=1
 
-all: $(BASE)
+all: clean $(BASE)
 
 %.cc %.hh %.xml %.gv: %.yy
 	$(BISON) $(BISONFLAGS) --xml --graph=$*.gv -o $*.cc $<
@@ -18,16 +19,16 @@ all: $(BASE)
 %.o: %.cc
 	$(CXX) $(CXXFLAGS) -c -o$@ $<
 
-$(BASE): $(BASE).o driver.o parser.o scanner.o
-	$(CXX) -o $@ $^
+$(BASE): $(BASE).o  AST.o CodegenVisitor.o PrintVisitor.o driver.o parser.o scanner.o 
+	$(CXX) `llvm-config --cxxflags --ldflags --libs core` -o $@ $^
 
 $(BASE).o: parser.hh
 parser.o: parser.hh
 scanner.o: parser.hh
 
 run: $(BASE)
-	@echo "Type arithmetic expressions.  Quit with ctrl-d."
-	./$< -
+	@echo "Save your code in test.jia"
+	./$< test.jia && $(CXX) output.out chelper.cc -o try.exe && echo "result is " && ./try.exe
 
 html: parser.html
 %.html: %.xml
@@ -36,6 +37,6 @@ html: parser.html
 CLEANFILES =										\
   $(BASE) *.o										\
   parser.hh parser.cc parser.output parser.xml parser.html parser.gv location.hh	\
-  scanner.cc
+  scanner.cc *.out *.exe
 clean:
 	rm -f $(CLEANFILES)

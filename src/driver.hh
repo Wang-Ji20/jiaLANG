@@ -3,6 +3,8 @@
 # include <string>
 # include <map>
 # include "parser.hh"
+# include "AST.hh"
+# include "CodegenVisitor.hh"
 
 // Give Flex the prototype of yylex we want ...
 # define YY_DECL \
@@ -34,5 +36,9 @@ public:
   bool trace_scanning;
   // The token's location used by the scanner.
   yy::location location;
+
+  // AST root
+  std::shared_ptr<MainAST> root;
+
 };
 #endif // ! DRIVER_HH
