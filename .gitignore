@@ -40,6 +40,6 @@ parser.html
 parser.gv 
 location.hh
 scanner.cc
-tools/playground
+docs/playground
 src/llvm
 .vscode

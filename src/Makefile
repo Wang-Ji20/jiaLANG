@@ -26,9 +26,7 @@ $(BASE).o: parser.hh
 parser.o: parser.hh
 scanner.o: parser.hh
 
-run: $(BASE)
-	@echo "Save your code in test.jia"
-	./$< test.jia && $(CXX) output.out chelper.cc -o try.exe && echo "result is " && ./try.exe
+
 
 html: parser.html
 %.html: %.xml
