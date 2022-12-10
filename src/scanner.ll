@@ -13,12 +13,15 @@
 
 %{
     yy::parser::symbol_type
-    make_NUMBER (const std::string &s, const yy::parser::location_type& loc);
+    make_INT_CONST (const std::string &s, const yy::parser::location_type& loc);
 %}
 
 id    [a-zA-Z][a-zA-Z_0-9]*
 int   [0-9]+
-blank [ \t\r]
+float (0|[1-9][0-9]*)("."[0-9]+)?([Ee][+-]?(0|[1-9][0-9]*))?
+char  "'"([^'\\\n]|(\\(['"\?\\abfnrtv]|[0-7]{1,3}|x[a-fA-F0-9]+)))+"'"
+string \"([^"\\\n]|(\\(['"\?\\abfnrtv]|[0-7]{1,3}|x[a-fA-F0-9]+)))*\"
+blank [ \t\v\f\r]
 
 %{
     #define YY_USER_ACTION loc.columns(yyleng);
@@ -37,17 +40,49 @@ blank [ \t\r]
 
 \n+        loc.lines (yyleng); loc.step ();
 
-"int"        return yy::parser::make_INT  (loc);
-"main"        return yy::parser::make_MAIN   (loc);
-"return"        return yy::parser::make_RET   (loc);
-";"        return yy::parser::make_SEMICOLON  (loc);
-"("        return yy::parser::make_LPAREN (loc);
-")"        return yy::parser::make_RPAREN (loc);
-"{"       return yy::parser::make_LBRACE (loc);
-"}"       return yy::parser::make_RBRACE (loc);
+"break"     return yy::parser::make_BREAK(loc);
+"char"      return yy::parser::make_CHAR(loc);
+"continue"  return yy::parser::make_CONTINUE(loc);
+"else"      return yy::parser::make_ELSE(loc);
+"float"     return yy::parser::make_FLOAT(loc);
+"if"        return yy::parser::make_IF(loc);
+"int"       return yy::parser::make_INT  (loc);
+"return"    return yy::parser::make_RET   (loc);
+"void"      return yy::parser::make_VOID(loc);
+"while"     return yy::parser::make_WHILE(loc);
 
-{int}      return make_NUMBER (yytext, loc);
-{id}       return yy::parser::make_IDENTIFIER (yytext, loc);
+"+"         return yy::parser::make_ADD(loc);
+"-"         return yy::parser::make_MINUS(loc);
+"*"         return yy::parser::make_STAR(loc);
+"/"         return yy::parser::make_DIVIDE(loc);
+"%"         return yy::parser::make_MODUS(loc);
+"!"         return yy::parser::make_LOGICAL_NEG(loc);
+"="         return yy::parser::make_ASSIGN(loc);
+"&"         return yy::parser::make_ADDR(loc);
+","         return yy::parser::make_COMMA(loc);
+";"         return yy::parser::make_SEMICOLON  (loc);
+"("         return yy::parser::make_LPAREN (loc);
+")"         return yy::parser::make_RPAREN (loc);
+"["         return yy::parser::make_LBRACK(loc);
+"]"         return yy::parser::make_RBRACK(loc);
+"{"         return yy::parser::make_LBRACE (loc);
+"}"         return yy::parser::make_RBRACE (loc);
+">"         return yy::parser::make_GT(loc);
+"<"         return yy::parser::make_LS(loc);
+">="        return yy::parser::make_GTE(loc);
+"<="        return yy::parser::make_LSE(loc);
+"=="        return yy::parser::make_EQ(loc);
+"!="        return yy::parser::make_NEQ(loc);
+"&&"        return yy::parser::make_AND(loc);
+"||"        return yy::parser::make_OR(loc);
+
+{int}       return make_INT_CONST (yytext, loc);
+{id}        return yy::parser::make_IDENTIFIER (yytext, loc);
+{float}     return yy::parser::make_FLOAT_CONST(yytext, loc);
+{char}      return yy::parser::make_CHAR_CONST(yytext, loc);
+{string}    return yy::parser::make_STRING_CONST(yytext, loc);
+
+
 .          {
              yy::parser::syntax_error
                (loc, "invalid character: " + std::string(yytext));
@@ -57,14 +92,14 @@ blank [ \t\r]
 %%
 
 yy::parser::symbol_type
-make_NUMBER (const std::string &s, const yy::parser::location_type& loc)
+make_INT_CONST (const std::string &s, const yy::parser::location_type& loc)
 {
   errno = 0;
   long n = strtol (s.c_str(), NULL, 10);
   if (! (INT_MIN <= n && n <= INT_MAX && errno != ERANGE))
 {    yy::parser::syntax_error (loc, "integer is out of range: " + s);
     return yy::parser::make_END (loc);}
-  return yy::parser::make_NUMBER ((int) n, loc);
+  return yy::parser::make_INT_CONST ((int) n, loc);
 }
 
 void

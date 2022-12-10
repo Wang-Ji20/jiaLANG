@@ -34,6 +34,13 @@
 /* 把 driver 拿进来 */
 %code {
     #include "driver.hh"
+    void emit_tree(int lay, std::string word){
+        std::cout << word;
+        for(int i = 0; i < lay; i++)
+            std::cout << '.';
+        std::cout << std::endl;
+    }
+
 }
 
 /* 接下来定义 Token */
@@ -45,86 +52,227 @@
 
 /* 关键字 */
 %token
-    END 0 "end of file"
-    MAIN "main"
+    BREAK "break"
+    CHAR "char"
+    CONTINUE "continue"
+    ELSE "else"
+    FLOAT "float"
+    IF "if"
     INT "int"
     RET "return"
+    VOID "void"
+    WHILE "while"
+
+    ADD "+"
+    MINUS "-"
+    STAR "*"
+    DIVIDE "/"
+    MODUS "%"
+    LOGICAL_NEG "!"
+    ASSIGN "="
+    ADDR "&"
+    COMMA ","
+    SEMICOLON ";"
     LPAREN "("
     RPAREN ")"
+    LBRACK "["
+    RBRACK "]"
     LBRACE "{"
     RBRACE "}"
-    SEMICOLON ";"
+
+    GT ">"
+    LS "<" 
+    GTE ">="
+    LSE "<="
+    EQ "=="
+    NEQ "!="
+    AND "&&"
+    OR "||"
+
+    END 0 "end of file"
 ; 
+
 %token <std::string> IDENTIFIER
-%token <int> NUMBER
+%token <std::string> STRING_CONST
+%token <std::string> CHAR_CONST
+%token <int> INT_CONST
+%token <std::string> FLOAT_CONST
 
 /* 非终结符 */
-%nterm <StatAST> statement
-%nterm <PrimaryExprAST> primary_expression
-%nterm <JPStatAST> jump_statement
-%nterm <ExprStatAST> expression_statement
-%nterm <ExprAST> expression
-%nterm <MainAST> meta
 
 /* Debug Tracing 里面如何打印一个值？ 直接用流运算符打印即可。 */
 %printer { yyo << $$; } <*>;
+
+%left ','
+%left OR
+%left AND
+%left '|'
+%left '^'
+%left '&'
+%left EQ NEQ
+%left '<' '>' ">=" "<="
+%left '+' '-'
+%left '*' '/' '%'
 
 %%
 %start meta;
 
 meta: 
-    INT MAIN statement 
-    {
-        $$.LCT = std::make_shared<StatAST>(std::move($3));
-        drv.root = std::make_shared<MainAST>(std::move($$));
-    }
+    external_declaration
+|   meta external_declaration
 ;
 
-expression:
-    primary_expression
-    {
-        $$.LCT = std::make_shared<PrimaryExprAST>(std::move($1));
-        $$.value = $$.LCT->value;
-    }
+external_declaration:
+    function_definition
+|   declaration
 ;
 
-primary_expression:
-    NUMBER          
-    {
-        $$.LCT = std::make_shared<NumberAST>(std::move($1));
-        $$.value = $$.LCT->value;
-    }
+function_definition:
+    type_specifier direct_dcl compond_statement
+;
+
+type_specifier:
+    VOID
+|   CHAR
+|   INT
+|   FLOAT
+;
+
+
+direct_dcl:
+    IDENTIFIER
+|   LPAREN direct_dcl RPAREN
+|   direct_dcl LBRACK RBRACK
+|   direct_dcl LBRACK binary_expression RBRACK
+|   direct_dcl LPAREN RPAREN
+|   direct_dcl LPAREN parameter_type_list RPAREN
+;
+
+parameter_type_list:
+    parameter_declaration
+|   parameter_type_list COMMA parameter_declaration
+;
+
+parameter_declaration:
+    type_specifier direct_dcl
+;
+
+
+direct_adcl:
+    LBRACK binary_expression RBRACK
+|   direct_adcl LBRACK binary_expression RBRACK
+|   direct_adcl LPAREN RPAREN
+|   LPAREN RPAREN
+|   direct_adcl LPAREN parameter_type_list RPAREN
+|   LPAREN parameter_type_list RPAREN
+;
+
+declaration:
+    type_specifier init_declarator_list
+|   type_specifier
+;
+
+init_declarator_list:
+    init_declarator
+|   init_declarator_list COMMA init_declarator
+;
+
+init_declarator:
+    direct_dcl
+|   direct_dcl "=" initializer
+;
+
+initializer:
+    binary_expression
+|   LBRACE initializer_list RBRACE
+|   LBRACE initializer_list COMMA RBRACE
+;
+
+initializer_list:
+    initializer_list COMMA initializer
+|   initializer
 ;
 
 statement:
-    expression_statement
-    {
-        $$.LCT = std::make_shared<ExprStatAST>(std::move($1));
-    }
-|    jump_statement
-    {
-        $$.LCT = std::make_shared<JPStatAST>(std::move($1));
-        $$.value = $$.LCT->value;
-    }
+    WHILE LPAREN binary_expression RPAREN compond_statement
+|   IF LPAREN binary_expression RPAREN compond_statement
+|   IF LPAREN binary_expression RPAREN compond_statement ELSE compond_statement
+|   ";"
+|   binary_expression ";"
+|   RET binary_expression ";"
+|   RET ";"
+|   CONTINUE ";"
+|   BREAK ";"
+|   compond_statement
 ;
 
-expression_statement:
-    ";"
-    {
-        $$.LCT = std::make_shared<ExprAST>();
-    }
-|    expression ";"
-    {
-        $$.LCT = std::make_shared<ExprAST>(std::move($1));
-    }
+compond_statement:
+    LBRACE RBRACE
+|   LBRACE declaration_list RBRACE
+|   LBRACE statement_list RBRACE
+|   LBRACE declaration_list statement_list RBRACE
 ;
 
-jump_statement:
-    RET expression ";"
-    {
-        $$.LCT = std::make_shared<ExprAST>(std::move($2));
-        $$.value = $$.LCT->value;
-    }
+declaration_list:
+    declaration
+|   declaration_list declaration
+;
+
+statement_list:
+    statement
+|   statement_list statement
+;
+
+
+constant:
+    INT_CONST
+|   FLOAT_CONST
+|   CHAR_CONST
+|   STRING_CONST
+;
+
+
+primary_expression:
+    constant
+|   IDENTIFIER
+|   LPAREN binary_expression RPAREN
+|   primary_expression LPAREN expression_list RPAREN
+|   primary_expression LBRACK binary_expression RBRACK
+;
+
+
+unary_expression:
+    primary_expression
+|   LPAREN type_specifier RPAREN unary_expression
+|   ADD unary_expression
+|   MINUS unary_expression
+|   LOGICAL_NEG unary_expression
+|   STAR unary_expression
+|   ADDR unary_expression
+;
+
+
+binary_expression:
+    unary_expression
+|   binary_expression STAR unary_expression
+|   binary_expression DIVIDE unary_expression
+|   binary_expression MODUS unary_expression
+|   binary_expression ADD unary_expression
+|   binary_expression MINUS unary_expression
+|   binary_expression ">" unary_expression
+|   binary_expression "<" unary_expression
+|   binary_expression ">=" unary_expression
+|   binary_expression "<=" unary_expression
+|   binary_expression EQ unary_expression
+|   binary_expression NEQ unary_expression
+|   binary_expression AND unary_expression
+|   binary_expression OR unary_expression
+|   unary_expression ASSIGN binary_expression
+;
+
+expression_list:
+    binary_expression
+|   expression_list COMMA binary_expression
 ;
 
 %%
@@ -135,9 +283,4 @@ void
 yy::parser::error (const location_type& l, const std::string& m)
 {
   std::cerr << l << ": " << m << '\n';
-}
-
-std::ostream & operator<<(std::ostream &out, const AST& ast){
-    out << "type is " << ast.name << " value is " << ast.value;
-    return out;
 }
