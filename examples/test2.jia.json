@@ -1,0 +1,18 @@
+{
+  "Node Name": "meta",
+  "Children": [
+    {
+      "Node Name": "function definition return type void",
+      "Children": [
+        {
+          "Node Name": "DirectDcl: a",
+          "Children": []
+        },
+        {
+          "Node Name": "StatList",
+          "Children": []
+        }
+      ]
+    }
+  ]
+}
