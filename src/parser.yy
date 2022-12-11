@@ -93,12 +93,31 @@
 ; 
 
 %token <std::string> IDENTIFIER
-%token <std::string> STRING_CONST
 %token <std::string> CHAR_CONST
 %token <int> INT_CONST
 %token <std::string> FLOAT_CONST
 
 /* 非终结符 */
+
+%nterm <std::shared_ptr<AST>>
+    meta
+    direct_dcl
+    parameter_type_list
+    init_declarator_list
+    init_declarator
+    initializer
+    initializer_list
+    statement
+    compond_statement
+    statement_list
+    constant
+    primary_expression
+    unary_expression
+    binary_expression
+    expression_list
+;
+
+%nterm <std::string> type_specifier 
 
 /* Debug Tracing 里面如何打印一个值？ 直接用流运算符打印即可。 */
 %printer { yyo << $$; } <*>;
@@ -118,161 +137,128 @@
 %start meta;
 
 meta: 
-    external_declaration
-|   meta external_declaration
-;
-
-external_declaration:
-    function_definition
-|   declaration
-;
-
-function_definition:
-    type_specifier direct_dcl compond_statement
+    type_specifier direct_dcl LPAREN RPAREN compond_statement         { make_function(drv.root, $1, $2, nullptr, $5); }
+|   type_specifier direct_dcl LPAREN parameter_type_list RPAREN compond_statement { make_function(drv.root, $1, $2, $4, $6); }
+|   type_specifier init_declarator_list  ";"            { make_decl(drv.root, $1, $2); }
+|   meta type_specifier direct_dcl LPAREN RPAREN compond_statement    { make_function(drv.root, $2, $3, nullptr, $6); }
+|   meta type_specifier direct_dcl LPAREN parameter_type_list RPAREN compond_statement    { make_function(drv.root, $2, $3, $5, $7); }
+|   meta type_specifier init_declarator_list ";"        { make_decl(drv.root, $2, $3); }
 ;
 
 type_specifier:
-    VOID
-|   CHAR
-|   INT
-|   FLOAT
+    VOID    {$$ = "void";}
+|   CHAR    {$$ = "char";}
+|   INT     {$$ = "int";}
+|   FLOAT   {$$ = "float";}
 ;
 
 
 direct_dcl:
-    IDENTIFIER
-|   LPAREN direct_dcl RPAREN
-|   direct_dcl LBRACK RBRACK
-|   direct_dcl LBRACK binary_expression RBRACK
-|   direct_dcl LPAREN RPAREN
-|   direct_dcl LPAREN parameter_type_list RPAREN
+    IDENTIFIER                                          { $$ = make_directdcl($1); }
+|   LPAREN direct_dcl RPAREN                            { $$ = $2; }
+|   direct_dcl LBRACK RBRACK                            { $$ = make_directdcl_array($1); }
+|   direct_dcl LBRACK INT_CONST RBRACK                  { $$ = make_directdcl_array($1, $3); }
 ;
 
 parameter_type_list:
-    parameter_declaration
-|   parameter_type_list COMMA parameter_declaration
-;
-
-parameter_declaration:
-    type_specifier direct_dcl
-;
-
-
-direct_adcl:
-    LBRACK binary_expression RBRACK
-|   direct_adcl LBRACK binary_expression RBRACK
-|   direct_adcl LPAREN RPAREN
-|   LPAREN RPAREN
-|   direct_adcl LPAREN parameter_type_list RPAREN
-|   LPAREN parameter_type_list RPAREN
-;
-
-declaration:
-    type_specifier init_declarator_list
-|   type_specifier
+    type_specifier direct_dcl                           { $$ = make_parameter_list($1, $2); }
+|   parameter_type_list COMMA type_specifier direct_dcl { $$ = cons_parameter_list($1, $3, $4); }
 ;
 
 init_declarator_list:
-    init_declarator
-|   init_declarator_list COMMA init_declarator
+    init_declarator                                     { $$ = make_initdcl_list($1); }
+|   init_declarator_list COMMA init_declarator          { $$ = cons_initdcl_list($1, $3); }
 ;
 
 init_declarator:
-    direct_dcl
-|   direct_dcl "=" initializer
+    direct_dcl                                          { $$ = make_initdcl($1); }
+|   direct_dcl "=" initializer                          { $$ = make_initdcl($1, $3); }
 ;
 
 initializer:
-    binary_expression
-|   LBRACE initializer_list RBRACE
-|   LBRACE initializer_list COMMA RBRACE
+    binary_expression                                   { $$ = make_init($1); }
+|   LBRACE initializer_list RBRACE                      { $$ = make_init($2); }
+|   LBRACE initializer_list COMMA RBRACE                { $$ = make_init($2); }
 ;
 
 initializer_list:
-    initializer_list COMMA initializer
-|   initializer
+    initializer                                         { $$ = make_init_list($1); }
+|   initializer_list COMMA initializer                  { $$ = cons_init_list($1, $3); }
 ;
 
 statement:
-    WHILE LPAREN binary_expression RPAREN compond_statement
-|   IF LPAREN binary_expression RPAREN compond_statement
-|   IF LPAREN binary_expression RPAREN compond_statement ELSE compond_statement
-|   ";"
-|   binary_expression ";"
-|   RET binary_expression ";"
-|   RET ";"
-|   CONTINUE ";"
-|   BREAK ";"
-|   compond_statement
+    WHILE LPAREN binary_expression RPAREN compond_statement { $$ = make_loop($3, $5); }
+|   IF LPAREN binary_expression RPAREN compond_statement    { $$ = make_if($3, $5); }
+|   IF LPAREN binary_expression RPAREN compond_statement ELSE compond_statement { $$ = make_ifelse($3, $5, $7); }
+|   ";" { ; }
+|   binary_expression ";"   { $$ = make_expr_stat($1); }
+|   RET binary_expression ";"   { $$ = make_ret_stat($2); }
+|   RET ";" { $$ = make_ret_stat(); }
+|   CONTINUE ";" { $$ = make_cont(); }
+|   BREAK ";"   { $$ = make_break(); }
+|   compond_statement   { $$ = $1;}
 ;
 
 compond_statement:
-    LBRACE RBRACE
-|   LBRACE declaration_list RBRACE
-|   LBRACE statement_list RBRACE
-|   LBRACE declaration_list statement_list RBRACE
-;
-
-declaration_list:
-    declaration
-|   declaration_list declaration
+    LBRACE RBRACE   { $$ = make_stat_list();}
+|   LBRACE statement_list RBRACE { $$ = $2; }
 ;
 
 statement_list:
-    statement
-|   statement_list statement
+    statement   { $$ = make_stat_list($1); }
+|   type_specifier init_declarator_list ";" {$$ = make_stat_list(); make_decl($$, $1, $2);}
+|   statement_list type_specifier init_declarator_list ";" {make_decl($1, $2, $3);}
+|   statement_list statement { $$ = cons_stat_list($1, $2); }
 ;
 
 
 constant:
-    INT_CONST
-|   FLOAT_CONST
-|   CHAR_CONST
-|   STRING_CONST
+    INT_CONST   {$$ = make_int_c($1);}
+|   FLOAT_CONST {$$ = make_float_c($1);}
+|   CHAR_CONST  {$$ = make_char_c($1);}
 ;
 
 
 primary_expression:
-    constant
-|   IDENTIFIER
-|   LPAREN binary_expression RPAREN
-|   primary_expression LPAREN expression_list RPAREN
-|   primary_expression LBRACK binary_expression RBRACK
+    constant    { $$ = $1;}
+|   IDENTIFIER  { $$ = read_ident($1); }
+|   LPAREN binary_expression RPAREN { $$ = $2; }
+|   primary_expression LPAREN expression_list RPAREN { $$ = func_eval($1, $3); }
+|   primary_expression LBRACK binary_expression RBRACK { $$ = array_get($1, $3); }
 ;
 
 
 unary_expression:
-    primary_expression
-|   LPAREN type_specifier RPAREN unary_expression
-|   ADD unary_expression
-|   MINUS unary_expression
-|   LOGICAL_NEG unary_expression
-|   STAR unary_expression
-|   ADDR unary_expression
+    primary_expression  { $$ = $1; }
+|   LPAREN type_specifier RPAREN unary_expression { $$ = make_unary($2, $4);}
+|   MINUS unary_expression { $$ = make_unary("-", $2);}
+|   LOGICAL_NEG unary_expression { $$ = make_unary("!", $2);}
+|   STAR unary_expression { $$ = make_unary("*", $2);}
+|   ADDR unary_expression { $$ = make_unary("&", $2);}
 ;
 
 
 binary_expression:
-    unary_expression
-|   binary_expression STAR unary_expression
-|   binary_expression DIVIDE unary_expression
-|   binary_expression MODUS unary_expression
-|   binary_expression ADD unary_expression
-|   binary_expression MINUS unary_expression
-|   binary_expression ">" unary_expression
-|   binary_expression "<" unary_expression
-|   binary_expression ">=" unary_expression
-|   binary_expression "<=" unary_expression
-|   binary_expression EQ unary_expression
-|   binary_expression NEQ unary_expression
-|   binary_expression AND unary_expression
-|   binary_expression OR unary_expression
-|   unary_expression ASSIGN binary_expression
+    unary_expression { $$ = $1; }
+|   binary_expression STAR unary_expression {$$ = make_binary("*", $1, $3); }
+|   binary_expression DIVIDE unary_expression {$$ = make_binary("/", $1, $3); }
+|   binary_expression MODUS unary_expression {$$ = make_binary("%", $1, $3); }
+|   binary_expression ADD unary_expression {$$ = make_binary("+", $1, $3); }
+|   binary_expression MINUS unary_expression {$$ = make_binary("-", $1, $3); }
+|   binary_expression GT unary_expression {$$ = make_binary(">", $1, $3); }
+|   binary_expression LS unary_expression {$$ = make_binary("<", $1, $3); }
+|   binary_expression GTE unary_expression {$$ = make_binary(">=", $1, $3); }
+|   binary_expression LSE unary_expression {$$ = make_binary("<=", $1, $3); }
+|   binary_expression EQ unary_expression {$$ = make_binary("==", $1, $3); }
+|   binary_expression NEQ unary_expression {$$ = make_binary("!=", $1, $3); }
+|   binary_expression AND unary_expression {$$ = make_binary("&&", $1, $3); }
+|   binary_expression OR unary_expression {$$ = make_binary("||", $1, $3); }
+|   unary_expression ASSIGN binary_expression {$$ = make_binary("=", $1, $3); }
 ;
 
 expression_list:
-    binary_expression
-|   expression_list COMMA binary_expression
+    binary_expression   { $$ = make_expr_list($1); }
+|   expression_list COMMA binary_expression { $$ = cons_expr_list($1, $3); }
 ;
 
 %%
@@ -283,4 +269,9 @@ void
 yy::parser::error (const location_type& l, const std::string& m)
 {
   std::cerr << l << ": " << m << '\n';
+}
+
+std::ostream & operator<<(std::ostream &out, const AST& ast){
+    out << ast.name << std::endl;
+    return out;
 }

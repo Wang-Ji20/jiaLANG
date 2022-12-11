@@ -38,7 +38,7 @@ public:
   yy::location location;
 
   // AST root
-  std::shared_ptr<MainAST> root;
+  std::shared_ptr<AST> root;
 
 };
 #endif // ! DRIVER_HH

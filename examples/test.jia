@@ -1,1 +1,7 @@
-int main return 32113;
+void visit(int ast){
+    printf(*ast);
+    while(ast != nullptr){
+        visit(ast + 4);
+    }
+    return;
+}

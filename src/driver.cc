@@ -4,6 +4,8 @@
 driver::driver ()
   : trace_parsing (false), trace_scanning (false)
 {
+  root = std::make_shared<AST>();
+  root->name = "meta";
 }
 
 int
@@ -20,13 +22,14 @@ driver::parse (const std::string &f)
   int res = parse ();
   scan_end ();
 
+  // std::cout << "parsing complete\n";
   PrintVisitor pv;
   root->accept(&pv);
   
-  CodegenVisitor& codegen = CodegenVisitor::GetInstance();
-  root->accept(&codegen);
+  // CodegenVisitor& codegen = CodegenVisitor::GetInstance();
+  // root->accept(&codegen);
 
-  codegen.TheModule->print(llvm::errs(), nullptr);
+  // codegen.TheModule->print(llvm::errs(), nullptr);
 
 
   return res;

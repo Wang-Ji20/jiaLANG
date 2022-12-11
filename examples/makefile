@@ -1,12 +1,12 @@
 SRCS := $(shell find -name '*.jia')
-OBJS := $(SRCS:%=%.exe)
+OBJS := $(SRCS:%=%.show)
 
 all: $(OBJS)
-	echo built $^
+	echo shown $^
 
-%.jia.exe: %.jia
-	../build/main $^ && $(CXX) output.out chelper.cc -o $@
+%.jia.show: %.jia
+	../build/main $^
 
 clean:
-	rm *.exe
-	rm *.out
+	rm -f *.exe
+	rm -f *.out

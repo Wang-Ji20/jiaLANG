@@ -20,7 +20,6 @@ id    [a-zA-Z][a-zA-Z_0-9]*
 int   [0-9]+
 float (0|[1-9][0-9]*)("."[0-9]+)?([Ee][+-]?(0|[1-9][0-9]*))?
 char  "'"([^'\\\n]|(\\(['"\?\\abfnrtv]|[0-7]{1,3}|x[a-fA-F0-9]+)))+"'"
-string \"([^"\\\n]|(\\(['"\?\\abfnrtv]|[0-7]{1,3}|x[a-fA-F0-9]+)))*\"
 blank [ \t\v\f\r]
 
 %{
@@ -80,7 +79,6 @@ blank [ \t\v\f\r]
 {id}        return yy::parser::make_IDENTIFIER (yytext, loc);
 {float}     return yy::parser::make_FLOAT_CONST(yytext, loc);
 {char}      return yy::parser::make_CHAR_CONST(yytext, loc);
-{string}    return yy::parser::make_STRING_CONST(yytext, loc);
 
 
 .          {
