@@ -275,6 +275,8 @@ make_directdcl(std::string identifier);
 tnode
 make_directdcl_array(tnode direct_dcl, int arrlen = 0);
 
+tnode
+make_func_sig(tnode directdcl, tnode param_list = nullptr);
 
 tnode
 make_parameter_list(std::string type_specifier, tnode directdcl);

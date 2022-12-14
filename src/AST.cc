@@ -31,8 +31,7 @@ make_function(tnode scope, string type_spec, tnode direct_dcl, tnode param_list,
     func_node->Type = type_spec;
     func_node->name += " return type " + type_spec;
     func_node->children.push_back(direct_dcl);
-    if(param_list != nullptr)
-        func_node->children.push_back(param_list);
+    func_node->children.push_back(param_list);
     func_node->children.push_back(func_body);
     scope->children.push_back(func_node);
     return;
