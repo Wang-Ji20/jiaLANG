@@ -2,6 +2,7 @@
 #include "CodegenVisitor.hh"
 
 using namespace std;
+using namespace llvm;
 
 // llvm::Value* NumberAST::codegen(CodegenVisitor& v){
 //     return v.retv = llvm::ConstantInt::get(*(v.TheContext), llvm::APInt(32, value));
@@ -31,7 +32,8 @@ make_function(tnode scope, string type_spec, tnode direct_dcl, tnode param_list,
     func_node->Type = type_spec;
     func_node->name += " return type " + type_spec;
     func_node->children.push_back(direct_dcl);
-    func_node->children.push_back(param_list);
+    if(param_list != nullptr)
+        func_node->children.push_back(param_list);
     func_node->children.push_back(func_body);
     scope->children.push_back(func_node);
     return;
@@ -51,19 +53,28 @@ tnode
 make_directdcl(string identifier){
     auto direct_dcl = make_shared<DirectDclAST>();
     direct_dcl->name += ": " + identifier;
+    direct_dcl->Type = "identifier";
+    direct_dcl->id_name = identifier;
+    direct_dcl->size = 1;
     return direct_dcl;
 }
 
 tnode
 make_directdcl_array(tnode direct_dcl, int arrlen){
+    
     direct_dcl->name += "is a array size " + to_string(arrlen);
+    direct_dcl->Type = "array";
+    shared_ptr<DirectDclAST> direct_dcl_t = dynamic_pointer_cast<DirectDclAST>(direct_dcl); 
+    direct_dcl_t->size *= arrlen;
     return direct_dcl;
 }
 
 
 tnode
 make_parameter_decl(string type_spec, tnode directdcl){
-    tnode param_decl = make_shared<ParameterDeclAST>();
+    auto param_decl = make_shared<ParameterDeclAST>();
+    param_decl->Type = type_spec;
+    param_decl->size = dynamic_pointer_cast<DirectDclAST>(directdcl)->size;
     param_decl->name += " type " + type_spec;
     param_decl->children.push_back(directdcl);
     return param_decl;
@@ -194,21 +205,25 @@ tnode
 make_int_c(int i){
     auto constAST = make_shared<ConstAST>();
     constAST->name += " int " + to_string(i);
+    constAST->Type = "int";
     constAST->int_v = i;
     return constAST;
 }
 
 tnode
-make_float_c(string f){
+make_float_c(double f){
     auto constAST = make_shared<ConstAST>();
-    constAST->name += " float " + f;
+    constAST->name += " float " + to_string (f);
+    constAST->double_v = f;
+    constAST->Type = "float";
     return constAST;
 }
 
 tnode
-make_char_c(string c){
+make_char_c(char c){
     auto constAST = make_shared<ConstAST>();
-    constAST->name += " char " + c;
+    constAST->name += " char " + to_string(c);
+    constAST->Type = "char";
     return constAST;
 }
 

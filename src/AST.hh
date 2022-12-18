@@ -73,7 +73,7 @@ public:
     FuncDefAST(){
         name = "function definition";
     }
-    
+    llvm::Value* codegen(CodegenVisitor& v) override;
 };
 
 
@@ -82,13 +82,16 @@ public:
     DeclAST(){
         name = "Decl";
     }    
+    llvm::Value* codegen(CodegenVisitor& v) override;
 };
 
 class DirectDclAST: public AST{
 public:
     DirectDclAST(){
         name = "DirectDcl";
-    }    
+    }
+    std::string id_name;
+    int size;
 };
 
 class ParameterListAST: public AST{
@@ -102,7 +105,8 @@ class ParameterDeclAST: public AST{
 public:
     ParameterDeclAST(){
         name = "ParameterDecl";
-    }    
+    }
+    int size;
 };
 
 
@@ -213,8 +217,10 @@ public:
     ConstAST(){
         name = "const";
     }
-    int int_v;
-    // llvm::Value* codegen(CodegenVisitor& v) override;
+    long int_v;
+    double double_v;
+    char c_v;
+    llvm::Value* codegen(CodegenVisitor& v) override;
 };
 
 class ReadAST: public AST{
@@ -276,9 +282,6 @@ tnode
 make_directdcl_array(tnode direct_dcl, int arrlen = 0);
 
 tnode
-make_func_sig(tnode directdcl, tnode param_list = nullptr);
-
-tnode
 make_parameter_list(std::string type_specifier, tnode directdcl);
 
 tnode
@@ -336,10 +339,10 @@ tnode
 make_int_c(int i);
 
 tnode
-make_float_c(std::string f);
+make_float_c(double f);
 
 tnode
-make_char_c(std::string c);
+make_char_c(char c);
 
 tnode
 read_ident(std::string id);

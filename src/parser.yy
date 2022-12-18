@@ -93,9 +93,9 @@
 ; 
 
 %token <std::string> IDENTIFIER
-%token <std::string> CHAR_CONST
-%token <int> INT_CONST
-%token <std::string> FLOAT_CONST
+%token <char> CHAR_CONST
+%token <long> INT_CONST
+%token <double> FLOAT_CONST
 
 /* 非终结符 */
 
@@ -207,7 +207,7 @@ compond_statement:
 statement_list:
     statement   { $$ = make_stat_list($1); }
 |   type_specifier init_declarator_list ";" {$$ = make_stat_list(); make_decl($$, $1, $2);}
-|   statement_list type_specifier init_declarator_list ";" {make_decl($1, $2, $3);}
+|   statement_list type_specifier init_declarator_list ";" {make_decl($1, $2, $3); $$ = $1;}
 |   statement_list statement { $$ = cons_stat_list($1, $2); }
 ;
 

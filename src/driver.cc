@@ -22,14 +22,14 @@ driver::parse (const std::string &f)
   int res = parse ();
   scan_end ();
 
-  // std::cout << "parsing complete\n";
+  std::cout << "parsing complete\n";
   PrintVisitor pv;
   root->accept(&pv);
   
-  // CodegenVisitor& codegen = CodegenVisitor::GetInstance();
-  // root->accept(&codegen);
+  CodegenVisitor& codegen = CodegenVisitor::GetInstance();
+  root->accept(&codegen);
 
-  // codegen.TheModule->print(llvm::errs(), nullptr);
+  codegen.TheModule->print(llvm::errs(), nullptr);
 
 
   return res;

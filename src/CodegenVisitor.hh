@@ -30,6 +30,7 @@ private:
         TheContext = std::make_unique<llvm::LLVMContext>();
         TheModule = std::make_unique<llvm::Module>("test", *TheContext);
         Builder = std::make_unique<llvm::IRBuilder<>>(*TheContext);
+        SymbolTables.push_back(rootSymbolTable);
     }
 public:
     static CodegenVisitor& GetInstance(){
@@ -41,14 +42,38 @@ public:
         return nullptr;
     }
 
+    llvm::Type*
+    s2Type(std::string s)
+    {
+        if (s == "void")
+        {
+            return llvm::Type::getVoidTy(*TheContext);
+        }
+        else if (s == "int")
+        {
+            return llvm::Type::getInt64Ty(*TheContext);
+        }
+        else if (s == "float")
+        {
+            return llvm::Type::getDoublePtrTy(*TheContext);
+        }
+        else if (s == "char")
+        {
+            return llvm::Type::getInt8Ty(*TheContext);
+        }
+        return llvm::Type::getVoidTy(*TheContext);
+    }
+
 /* visit */
     void visit(std::shared_ptr<AST> ast) override;
 
+    std::string vstname = "codegen";
     std::unique_ptr<llvm::LLVMContext> TheContext;
     std::unique_ptr<llvm::IRBuilder<>> Builder;
     std::unique_ptr<llvm::Module> TheModule;
-    std::map<std::string, llvm::Value *> NamedValues;
-    llvm::Value* retv;
+    std::map<std::string, llvm::Value *> rootSymbolTable;
+    std::vector<std::map<std::string, llvm::Value *>> SymbolTables;
+    std::vector<llvm::Value *> retValues;
 
 /* 生成最终代码 */
     ~CodegenVisitor(){
