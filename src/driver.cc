@@ -29,6 +29,8 @@ driver::parse (const std::string &f)
   CodegenVisitor& codegen = CodegenVisitor::GetInstance();
   root->accept(&codegen);
 
+  codegen.irOpt();
+
   codegen.TheModule->print(llvm::errs(), nullptr);
 
 

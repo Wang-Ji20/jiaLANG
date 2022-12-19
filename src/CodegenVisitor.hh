@@ -17,6 +17,7 @@
 #include "llvm/Target/TargetMachine.h"
 #include "llvm/Target/TargetOptions.h"
 #include "llvm/IR/LegacyPassManager.h"
+#include "llvm/Passes/PassBuilder.h"
 
 class CodegenVisitor: public Visitor{
 
@@ -121,6 +122,35 @@ public:
     // llvm::Value 类 代表 llvm ir 中的一个值 就是 %1 %2 ...
     // llvm::Type 类 代表 llvm ir 中的值的类型 就是 i64 i64* ... 我已经完全掌握了 下面转到 codegenvisitor.cc
     std::vector<llvm::BasicBlock*> loopHeads, loopEnds;
+
+    void irOpt(){
+        /* 中间代码优化 */
+        // Create the analysis managers.
+        llvm::LoopAnalysisManager LAM;
+        llvm::FunctionAnalysisManager FAM;
+        llvm::CGSCCAnalysisManager CGAM;
+        llvm::ModuleAnalysisManager MAM;
+
+        // Create the new pass manager builder.
+        // Take a look at the PassBuilder constructor parameters for more
+        // customization, e.g. specifying a TargetMachine or various debugging
+        // options.
+        llvm::PassBuilder PB;
+
+        // Register all the basic analyses with the managers.
+        PB.registerModuleAnalyses(MAM);
+        PB.registerCGSCCAnalyses(CGAM);
+        PB.registerFunctionAnalyses(FAM);
+        PB.registerLoopAnalyses(LAM);
+        PB.crossRegisterProxies(LAM, FAM, CGAM, MAM);
+
+        // Create the pass manager.
+        // This one corresponds to a typical -O2 optimization pipeline.
+        llvm::ModulePassManager MPM = PB.buildPerModuleDefaultPipeline(llvm::OptimizationLevel::O2);
+
+        // Optimize the IR!
+        MPM.run(*TheModule, MAM);
+    }
 
 /* 生成最终代码 */
     ~CodegenVisitor(){
