@@ -13,7 +13,7 @@ int iadd(int a, int b){
     return a + b;
 }
 
-float fadd(float a, float b){
+float ffadd(float a, float b){
     return a + b;
 }
 
@@ -21,8 +21,44 @@ int complex_comp(int a, int b, int c, int d){
     return (a + b) * c % d;
 }
 
-int always10(){
+int always10(int v){
     int r;
     r = 10;
     return r;
+}
+
+int myabs(int a){
+    int b;
+    if(a < 0){
+        b = -a;
+    }
+    else{
+        b = a;
+    }
+    return b;
+}
+
+int mygcd(int a, int b){
+    int c;
+    c = a % b;
+    while(c != 0){
+        a = b;
+        b = c;
+        c = a % b;
+    }
+    return b;
+}
+
+int breakandcall(){
+    int h;
+    while(1){
+        h = mygcd(always10(1) - 1, always10(1) + 2);
+        if(h == 3){
+            break;
+        }
+        else{
+            continue;
+        }
+    }
+    return h;
 }

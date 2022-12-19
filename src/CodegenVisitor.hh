@@ -18,7 +18,6 @@
 #include "llvm/Target/TargetOptions.h"
 #include "llvm/IR/LegacyPassManager.h"
 
-
 class CodegenVisitor: public Visitor{
 
 /* 因为这个类中含有的都应该是静态变量，因此将它设置为 Singleton(单例) 类，也就是
@@ -101,13 +100,27 @@ public:
 
     std::string vstname = "codegen";
     std::unique_ptr<llvm::LLVMContext> TheContext;
+    // The context 是一个很抽象的东西
+    // 它无处不在 又没有什么意义
+    // 这个东西的作用似乎是管理静态变量
     std::unique_ptr<llvm::IRBuilder<>> Builder;
+    // 这个是最有用的 它可以用来新建语句 写入语句
     std::unique_ptr<llvm::Module> TheModule;
+    // The module 具体一点
+    // 你还记得我们刚刚看的文件有个 Module 名吗？1
+    // 每个文件都是一个 module
     std::map<std::string, llvm::Value *> rootSymbolTable;
+    // 这个是根符号表 里面存的是各种 (变量名, 变量地址) 对
     // std::map<std::string, llvm::Type *> rootTypeTable;
     std::vector<std::map<std::string, llvm::Value *>> SymbolTables;
+    // 这个是符号表栈
+    // 不止一个符号表 局部变量的符号表
     // std::vector<std::map<std::string, llvm::Type *>> TypeTables;
     std::vector<llvm::Value *> retValues;
+    // 返回值栈 函数套函数不止一个返回值
+    // llvm::Value 类 代表 llvm ir 中的一个值 就是 %1 %2 ...
+    // llvm::Type 类 代表 llvm ir 中的值的类型 就是 i64 i64* ... 我已经完全掌握了 下面转到 codegenvisitor.cc
+    std::vector<llvm::BasicBlock*> loopHeads, loopEnds;
 
 /* 生成最终代码 */
     ~CodegenVisitor(){

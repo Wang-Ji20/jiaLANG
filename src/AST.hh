@@ -138,6 +138,7 @@ public:
     LoopStatAST(){
         name = "LoopStat";
     }    
+    llvm::Value* codegen(CodegenVisitor& v) override;
 };
 
 
@@ -154,6 +155,7 @@ public:
     IfElseStatAST(){
         name = "IfElseStat";
     }    
+    llvm::Value* codegen(CodegenVisitor& v) override;
 };
 
 class ExprStatAST: public AST{
@@ -177,7 +179,8 @@ class ContStatAST: public AST{
 public:
     ContStatAST(){
         name = "ContStat";
-    }    
+    }
+    llvm::Value* codegen(CodegenVisitor& v) override;
 };
 
 
@@ -185,7 +188,8 @@ class BreakStatAST: public AST{
 public:
     BreakStatAST(){
         name = "BreakStat";
-    }    
+    }
+    llvm::Value* codegen(CodegenVisitor& v) override;
 };
 
 
@@ -240,6 +244,7 @@ public:
     CallExprAST(){
         name = "CallExpr";
     }    
+    llvm::Value* codegen(CodegenVisitor& v) override;
 };
 
 
