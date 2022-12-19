@@ -161,6 +161,7 @@ public:
     ExprStatAST(){
         name = "expression statement";
     }
+    llvm::Value* codegen(CodegenVisitor& v) override;
 };
 
 class RetStatAST: public AST{
@@ -168,6 +169,7 @@ public:
     RetStatAST(){
         name = "return statement";
     }
+    llvm::Value* codegen(CodegenVisitor& v) override;
 };
 
 
@@ -192,6 +194,7 @@ public:
     StatListAST(){
         name = "StatList";
     }    
+    llvm::Value* codegen(CodegenVisitor& v) override;
 };
 
 
@@ -228,6 +231,7 @@ public:
     ReadAST(){
         name = "read id from ";
     }
+    llvm::Value* codegen(CodegenVisitor& v) override;
 };
 
 
@@ -245,6 +249,7 @@ public:
     UnaryExprAST(){
         name = "UnaryExpr";
     }    
+    llvm::Value* codegen(CodegenVisitor& v) override;
 };
 
 
@@ -253,6 +258,7 @@ public:
     BinaryExprAST(){
         name = "BinaryExpr";
     }    
+    llvm::Value* codegen(CodegenVisitor& v) override;
 };
 
 

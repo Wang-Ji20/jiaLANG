@@ -31,6 +31,7 @@ private:
         TheModule = std::make_unique<llvm::Module>("test", *TheContext);
         Builder = std::make_unique<llvm::IRBuilder<>>(*TheContext);
         SymbolTables.push_back(rootSymbolTable);
+        // TypeTables.push_back(rootTypeTable);
     }
 public:
     static CodegenVisitor& GetInstance(){
@@ -55,13 +56,44 @@ public:
         }
         else if (s == "float")
         {
-            return llvm::Type::getDoublePtrTy(*TheContext);
+            return llvm::Type::getDoubleTy(*TheContext);
         }
         else if (s == "char")
         {
             return llvm::Type::getInt8Ty(*TheContext);
         }
         return llvm::Type::getVoidTy(*TheContext);
+    }
+
+    llvm::Value*
+    getSymbolValue(std::string name){
+        for(auto st = SymbolTables.rbegin(); st != SymbolTables.rend(); st++)
+        {
+            if((*st).find(name) != (*st).end()){
+                return (*st)[name];
+            }
+        }
+        return nullptr;
+    }
+
+    void
+    outSymbolTable()
+    {
+        printf("-------- Symbol Tables --------\n");
+        for (auto &&st : SymbolTables)
+        {
+            printf(" --- table ---\n");
+            for (auto &&ste : st)
+            {
+                std::string print_t, print_v;
+                llvm::raw_string_ostream rto(print_t), rvo(print_v);
+                ste.second->getType()->print(rto);
+                ste.second->print(rvo);
+                std::cout << ste.first << ' ' << print_v << " type " << print_t << '\n';
+            }
+            printf(" --- table end --- \n");
+        }
+        
     }
 
 /* visit */
@@ -72,7 +104,9 @@ public:
     std::unique_ptr<llvm::IRBuilder<>> Builder;
     std::unique_ptr<llvm::Module> TheModule;
     std::map<std::string, llvm::Value *> rootSymbolTable;
+    // std::map<std::string, llvm::Type *> rootTypeTable;
     std::vector<std::map<std::string, llvm::Value *>> SymbolTables;
+    // std::vector<std::map<std::string, llvm::Type *>> TypeTables;
     std::vector<llvm::Value *> retValues;
 
 /* 生成最终代码 */

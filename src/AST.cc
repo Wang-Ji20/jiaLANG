@@ -230,7 +230,7 @@ make_char_c(char c){
 tnode
 read_ident(string id){
     auto read_id = make_shared<ReadAST>();
-    read_id->name += id;
+    read_id->name = id;
     return read_id;
 }
 
@@ -253,7 +253,7 @@ array_get(tnode id, tnode idx){
 tnode
 make_unary(string op, tnode operand){
     auto unexp = make_shared<UnaryExprAST>();
-    unexp->name += " operator " + op;
+    unexp->name = op;
     unexp->children.push_back(operand);
     return unexp;
 }
@@ -261,7 +261,7 @@ make_unary(string op, tnode operand){
 tnode
 make_binary(string op, tnode operand1, tnode operand2){
     auto biexp = make_shared<BinaryExprAST>();
-    biexp->name += " operator " + op;
+    biexp->name = op;
     biexp->children.push_back(operand1);
     biexp->children.push_back(operand2);
     return biexp;

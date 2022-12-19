@@ -1,8 +1,28 @@
-int a = 2000;
-int b;
-char c = 'c';
-float d;
 
 void ass(int a, int b){
+    int dhhh;
+    return;
+}
 
+int addr(int a){
+    return *(&a);
+}
+
+int iadd(int a, int b){
+    int v = 3;
+    return a + b;
+}
+
+float fadd(float a, float b){
+    return a + b;
+}
+
+int complex_comp(int a, int b, int c, int d){
+    return (a + b) * c % d;
+}
+
+int always10(){
+    int r;
+    r = 10;
+    return r;
 }
