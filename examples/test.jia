@@ -1,6 +1,7 @@
 
 void ass(int a, int b){
-    int dhhh;
+    int dhhh[3];
+    b = dhhh[0];
     return;
 }
 
@@ -61,4 +62,15 @@ int breakandcall(){
         }
     }
     return h;
+}
+
+int arraysum(int arr[5], int n){
+    int b;
+    b = 0;
+    while (n > -1)
+    {
+        b = b + arr[n];
+        n = n - 1;
+    }
+    return b;
 }

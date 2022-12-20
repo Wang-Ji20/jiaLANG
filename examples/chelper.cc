@@ -10,6 +10,7 @@ extern "C" int64_t always10(int64_t r);
 extern "C" int64_t myabs(uint64_t a);
 extern "C" int64_t mygcd(uint64_t a, uint64_t b);
 extern "C" int64_t breakandcall();
+extern "C" int64_t arraysum(int64_t arr[], int64_t n);
 
 void testabs(){
     cout << "start test abs\n";
@@ -26,11 +27,20 @@ void testbreakandcall(){
     cout << breakandcall() << endl;
 }
 
+void testarraysum(){
+    int64_t ar[5] = {1, 2, 3, 4, 5};
+    cout << "start array sum\n";
+    cout << arraysum(ar, 4);
+}
+
+void (*testSuite[5])();
+
 int main(){
     std::cout << iadd(1, 1) << std::endl << ffadd(12.34, 4.12) << std::endl << complex_comp(4, 5, 7, 888) << std::endl;
     std::cout << addr(44) << std::endl << always10(1) << endl;
     testabs();
     testgcd();
     testbreakandcall();
+    testarraysum();
     return 0;
 }

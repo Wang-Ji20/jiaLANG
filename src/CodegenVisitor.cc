@@ -133,6 +133,7 @@ DeclAST::codegen(CodegenVisitor& v){
                 Value* arraySize = ConstantInt::get(Type::getInt64Ty(*v.TheContext), decl->size, true);
                 auto arrayType = ArrayType::get(vtype, decl->size);
                 vvalue = v.Builder->CreateAlloca(arrayType, arraySize, "");
+                v.SymbolTables.back()[decl->id_name] = vvalue;
             }
         }
         else{
@@ -404,6 +405,14 @@ BinaryExprAST::codegen(CodegenVisitor& v){
        if(oaddr == nullptr){
         panic("bad left value\n");
        }
+
+       // deal with different pointer?
+        if (oaddr->getType()->getPointerElementType()->isPointerTy())
+        {
+            
+        }
+        
+
        return v.Builder->CreateStore(rop, oaddr);
     }
     
@@ -429,7 +438,10 @@ ReadAST::codegen(CodegenVisitor& v){
         panic("undefined variable.\n");
     }
     if(id_value->getType()->isPointerTy()){
-        panic("array not implemented!\n");
+        Value* array_value = v.Builder->CreateGEP(id_value->getType()->getPointerElementType(), id_value,
+        children[1]->codegen(v), ""
+        );
+        return v.Builder->CreateLoad(id_value->getType()->getPointerElementType(), array_value);
     }
     
     return id_value;

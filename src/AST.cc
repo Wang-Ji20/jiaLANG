@@ -245,6 +245,7 @@ func_eval(tnode funcbody, tnode params){
 tnode
 array_get(tnode id, tnode idx){
     auto read_id = make_shared<ReadAST>();
+    read_id->name = id->name;
     read_id->children.push_back(id);
     read_id->children.push_back(idx);
     return read_id;    
