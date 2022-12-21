@@ -3,6 +3,7 @@
 using namespace std;
 
 extern "C" int64_t iadd(int64_t a, int64_t b);
+extern "C" int64_t ass(int64_t a, int64_t b);
 extern "C" double ffadd(double a, double b);
 extern "C" int complex_comp(int a, int b, int c, int d);
 extern "C" int64_t addr(int64_t a);
@@ -11,6 +12,7 @@ extern "C" int64_t myabs(uint64_t a);
 extern "C" int64_t mygcd(uint64_t a, uint64_t b);
 extern "C" int64_t breakandcall();
 extern "C" int64_t arraysum(int64_t arr[], int64_t n);
+extern "C" int64_t copyarr(int64_t src[5], int64_t dst[5]);
 
 void testabs(){
     cout << "start test abs\n";
@@ -33,14 +35,35 @@ void testarraysum(){
     cout << arraysum(ar, 4);
 }
 
-void (*testSuite[5])();
+void testass(){
+    cout << "start testass\n";
+    cout << ass(1, 2) << endl;
+}
+
+void testcopyarr(){
+    cout << "start testcopyass\n";
+    int64_t src[5] = {1, 2, 3, 4, 5};
+    int64_t dst[5] = {0, 0, 0, 0, 0};
+    copyarr(src, dst);
+    for (int i = 0; i < 5; i++)
+    {
+        cout << dst[i] << ' ';
+    }
+    cout << endl;
+}
+
+
+void (*testSuite[6])() = {
+    testabs, testgcd, testbreakandcall, testarraysum, testass, testcopyarr
+};
 
 int main(){
     std::cout << iadd(1, 1) << std::endl << ffadd(12.34, 4.12) << std::endl << complex_comp(4, 5, 7, 888) << std::endl;
     std::cout << addr(44) << std::endl << always10(1) << endl;
-    testabs();
-    testgcd();
-    testbreakandcall();
-    testarraysum();
+    for (auto &&i : testSuite)
+    {
+        i();
+    }
+    
     return 0;
 }

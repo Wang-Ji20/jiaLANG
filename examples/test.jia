@@ -1,8 +1,8 @@
 
-void ass(int a, int b){
+int ass(int a, int b){
     int dhhh[3];
-    b = dhhh[0];
-    return;
+    dhhh[0] = b;
+    return dhhh[0];
 }
 
 int addr(int a){
@@ -73,4 +73,15 @@ int arraysum(int arr[5], int n){
         n = n - 1;
     }
     return b;
+}
+
+int copyarr(int src[5], int dst[5]){
+    int n;
+    n = 0;
+    while (n < 5)
+    {
+        dst[n] = src[n];
+        n = n + 1;
+    }
+    return dst[0];
 }

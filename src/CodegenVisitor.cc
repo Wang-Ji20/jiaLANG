@@ -406,10 +406,13 @@ BinaryExprAST::codegen(CodegenVisitor& v){
         panic("bad left value\n");
        }
 
-       // deal with different pointer?
+       // deal with pointer?
         if (oaddr->getType()->getPointerElementType()->isPointerTy())
         {
-            
+            oaddr = v.Builder->CreateGEP(oaddr->getType()->getPointerElementType()->getPointerElementType(),
+                v.Builder->CreateLoad(oaddr->getType()->getPointerElementType(), oaddr),
+                children[0]->children[1]->codegen(v)
+            );
         }
         
 
