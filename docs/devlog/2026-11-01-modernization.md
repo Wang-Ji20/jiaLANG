@@ -24,3 +24,4 @@ the groundwork for a C compiler that can build Redis.
 - Wrote the recursive-descent parser (`jiaParse`). Bug caught while writing it: if a block contained an error, returning failure from `parseCompound` made file-scope recovery skip the *next* declaration too; the block is now kept and only its broken statements dropped.
 - Wrote semantic analysis (`jiaSema`) with 8 test groups covering conversions, desugaring, scopes, and error messages.
 - Wrote code generation (`jiaCodeGen`). LLVM 23 note: `BasicBlock::getTerminator()` now asserts on blocks without one; use `hasTerminator()` to ask.
+- Wrote the driver (`jiaDriver`) and the `jiac` tool; removed the legacy `src/`, makefiles, and `tools/env.sh`. First end-to-end run: `fib(20) = 6765`. At `-O2` LLVM turns the recursive `fib` into an accumulator loop.

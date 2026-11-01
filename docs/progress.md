@@ -27,3 +27,5 @@ bug turns up.
 - [x] LLVM IR generation for every construct; short-circuit `&&`/`||`;
       C-compatible calls including variadic ones; constant global
       initializers
+- [x] Driver: `-c`, `-S`, `-emit-llvm`, `-O0..3`, `--target`,
+      `-fsyntax-only`, `--dump-tokens`, `--dump-ast`; links with `$CC`

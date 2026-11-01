@@ -53,7 +53,44 @@ Useful options, passed to the first command:
 ctest --test-dir build --output-on-failure
 ```
 
-## 4. Where to go next
+## 4. Compile your first program
+
+Save this as `hello.jia`:
+
+```c
+int printf(char *fmt, ...);
+
+int fib(int n) {
+  if (n < 2) return n;
+  return fib(n - 1) + fib(n - 2);
+}
+
+int main() {
+  printf("fib(20) = %d\n", fib(20));
+  return 0;
+}
+```
+
+Then compile and run it:
+
+```sh
+./build/tools/jiac hello.jia -o hello
+./hello            # prints: fib(20) = 6765
+```
+
+Jia has no standard library of its own yet, so we *declare* `printf`
+and the linker finds it in the system's C library.
+
+To see what the compiler does at each stage:
+
+```sh
+./build/tools/jiac --dump-tokens hello.jia       # the tokens
+./build/tools/jiac --dump-ast hello.jia          # the typed tree
+./build/tools/jiac -S -emit-llvm hello.jia -o -  # LLVM IR
+./build/tools/jiac -O2 -S hello.jia -o -         # optimized assembly
+```
+
+## 5. Where to go next
 
 - Read [architecture.md](architecture.md) to see how the code is laid out.
 - Read [AGENTS.md](../AGENTS.md) before your first commit.

@@ -23,7 +23,7 @@ only the libraries below it in this table.
 
 | Library | Header | Responsibility | Status |
 |---|---|---|---|
-| `jiaDriver` | `jia/Driver/` | Command line, files, running the pipeline, linking | planned |
+| `jiaDriver` | `jia/Driver/` | Command line, files, running the pipeline, linking | done |
 | `jiaCodeGen` | `jia/CodeGen/` | Typed AST → LLVM IR | done |
 | `jiaSema` | `jia/Sema/` | Name resolution, type checking, implicit conversions | done |
 | `jiaParse` | `jia/Parse/` | Tokens → AST | done |
@@ -43,6 +43,24 @@ tests/e2e/           programs that are compiled, run, and checked
 bench/               benchmarks
 docs/                documentation (see AGENTS.md for the map)
 ```
+
+## The driver: a functional core in an imperative shell
+
+Everything below `jiaDriver` is pure: no files, no printing, no
+processes. The driver is the only place with side effects. It
+
+1. parses the command line (`parseArguments`, itself a pure function);
+2. reads each source file and keeps its text alive while its tokens
+   borrow from it;
+3. runs the pure front end, `frontEnd(source) = lex → parse → analyze`,
+   written as a chain of `Result::and_then` calls;
+4. generates an LLVM module, then optimizes and emits it
+   (`Backend.h`, a thin wrapper over LLVM's target machinery);
+5. links the objects by running the system C compiler (`$CC`, default
+   `cc`), which also supplies the C library.
+
+`tools/jiac/jiac.cpp` is fifteen lines: it parses arguments and calls
+`run`.
 
 ## Errors
 

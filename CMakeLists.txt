@@ -48,6 +48,7 @@ function(jia_add_library name)
 endfunction()
 
 add_subdirectory(lib)
+add_subdirectory(tools)
 
 enable_testing()
 add_subdirectory(tests)
