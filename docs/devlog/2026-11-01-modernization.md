@@ -23,3 +23,4 @@ the groundwork for a C compiler that can build Redis.
 - Added `jiaAST`: variant-based tree, uniqued types, dumper, constant folder. Turned off `-Wmissing-field-initializers`, which fires on designated initializers that rely on default member values.
 - Wrote the recursive-descent parser (`jiaParse`). Bug caught while writing it: if a block contained an error, returning failure from `parseCompound` made file-scope recovery skip the *next* declaration too; the block is now kept and only its broken statements dropped.
 - Wrote semantic analysis (`jiaSema`) with 8 test groups covering conversions, desugaring, scopes, and error messages.
+- Wrote code generation (`jiaCodeGen`). LLVM 23 note: `BasicBlock::getTerminator()` now asserts on blocks without one; use `hasTerminator()` to ask.

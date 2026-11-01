@@ -24,7 +24,7 @@ only the libraries below it in this table.
 | Library | Header | Responsibility | Status |
 |---|---|---|---|
 | `jiaDriver` | `jia/Driver/` | Command line, files, running the pipeline, linking | planned |
-| `jiaCodeGen` | `jia/CodeGen/` | Typed AST → LLVM IR | planned |
+| `jiaCodeGen` | `jia/CodeGen/` | Typed AST → LLVM IR | done |
 | `jiaSema` | `jia/Sema/` | Name resolution, type checking, implicit conversions | done |
 | `jiaParse` | `jia/Parse/` | Tokens → AST | done |
 | `jiaAST` | `jia/AST/` | Tree and type data structures, AST dumper, constant folding | done |

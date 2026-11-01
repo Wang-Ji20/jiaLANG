@@ -110,3 +110,26 @@ an arithmetic operator a common type.
 
 **Variadic function.** A function that takes a variable number of
 arguments, declared with `...`, such as `printf`.
+
+**Alloca.** An LLVM instruction that reserves space on the stack for a
+local variable.
+
+**Basic block.** A straight-line sequence of instructions with one entry
+and one exit. Control flow is expressed as branches between blocks.
+
+**LLVM IR (intermediate representation).** LLVM's low-level language,
+somewhere between C and assembly. It has typed values, an unlimited
+supply of virtual registers, and explicit control flow.
+
+**mem2reg.** The LLVM pass that turns stack slots (allocas) into
+registers when it is safe to do so.
+
+**Phi node.** An IR instruction that picks a value depending on which
+block control came from. It is how SSA form merges values from
+different paths.
+
+**SSA (static single assignment).** A form of IR in which every value is
+assigned exactly once. LLVM IR is in SSA form.
+
+**Terminator.** The instruction that ends a basic block: a branch, a
+return, or `unreachable`.

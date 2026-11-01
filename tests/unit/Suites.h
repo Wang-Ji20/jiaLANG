@@ -10,5 +10,6 @@ extern const TestSuite lexerSuite;
 extern const TestSuite astSuite;
 extern const TestSuite parserSuite;
 extern const TestSuite semaSuite;
+extern const TestSuite codegenSuite;
 
 } // namespace jia::test

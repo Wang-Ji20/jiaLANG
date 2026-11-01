@@ -21,3 +21,9 @@ bug turns up.
 - [x] Sema: scopes, symbol resolution, type checking, implicit
       conversions, pointer arithmetic, constant global initializers,
       array-size inference, non-cascading errors
+
+## Back end
+
+- [x] LLVM IR generation for every construct; short-circuit `&&`/`||`;
+      C-compatible calls including variadic ones; constant global
+      initializers
