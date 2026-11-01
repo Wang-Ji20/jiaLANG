@@ -30,3 +30,4 @@ the groundwork for a C compiler that can build Redis.
 - Bug found while writing the user manual: `const int *p` made `p` itself const, so `p = q` was rejected. Fixed: a leading `const` makes the object const only when it is not a pointer.
 - Wrote `jia-bench` and six benchmarks. The first collatz draft overflowed `int` (my bound was wrong), so the `-O0` build looped forever; caught it with UBSan. All benchmarks are now checked with `-fsanitize=undefined,address`. Baseline: jiac `-O2` matches GCC 16 within noise on 4 of 6 programs.
 - Wrote the roadmap (two arcs: a C compiler that builds Redis on LLVM, then our own back end, assembler, linker, and C library) and the detailed plan for Phase 0, M1, and M2.
+- Wrote research notes on what Redis needs (with a feature-census method to replace guesses with counts) and on prior art for our own back end, assembler, linker, and C library (chibicc, QBE, cproc, mold, musl).
