@@ -75,6 +75,12 @@ std::optional<BinaryInfo> binaryInfo(TokenKind kind) {
   }
 }
 
+/// Whether the declared object itself is const. In "const int *p" the
+/// const belongs to the pointee, so p may still be assigned.
+bool isConstObject(const DeclSpec &spec, const Type *type) {
+  return spec.isConst && !type->isPointer();
+}
+
 bool isTypeStart(TokenKind kind) {
   return kind == TokenKind::KwVoid || kind == TokenKind::KwChar ||
          kind == TokenKind::KwInt || kind == TokenKind::KwFloat ||
@@ -300,7 +306,7 @@ private:
         type = types_.pointerTo(type->element());
       fn.params.push_back(ParamDecl{.name = std::move(declared->name),
                                     .type = type,
-                                    .isConst = spec->isConst,
+                                    .isConst = isConstObject(*spec, type),
                                     .loc = declared->loc});
     } while (consume(TokenKind::Comma));
     if (!expect(TokenKind::RParen))
@@ -431,7 +437,7 @@ private:
     }
     VarDecl var{.name = std::move(declared.name),
                 .type = declared.type,
-                .isConst = spec.isConst,
+                .isConst = isConstObject(spec, declared.type),
                 .loc = declared.loc};
     if (consume(TokenKind::Equal)) {
       auto init = parseInitializer();

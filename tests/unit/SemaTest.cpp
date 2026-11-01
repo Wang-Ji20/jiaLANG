@@ -94,6 +94,9 @@ const TestSuite semaSuite{
                       std::string("expression is not assignable"));
            t.expectEq(firstError("void f() { const int c = 1; c = 2; }"),
                       std::string("cannot assign to variable 'c' with const-qualified type"));
+           // In "const int *p" the pointee is const, not p.
+           t.expectEq(firstError("void f(const int *p, int *q) { p = q; }"),
+                      std::string("ok"));
            t.expectEq(firstError("void f() { float x; x % 2; }"),
                       std::string("invalid operands to binary expression ('float' and 'int')"));
            t.expectEq(firstError("void f() { int x; *x; }"),
