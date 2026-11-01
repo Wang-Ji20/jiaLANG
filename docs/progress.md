@@ -13,3 +13,5 @@ bug turns up.
 
 - [x] Lexer: keywords, identifiers, decimal/octal/hex integers, floats,
       char and string literals with escapes, `//` and `/* */` comments
+- [x] AST as `std::variant` sum types; uniqued types; AST dumper
+- [x] Constant folding shared by parser, Sema, and code generation

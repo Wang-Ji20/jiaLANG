@@ -20,3 +20,4 @@ the groundwork for a C compiler that can build Redis.
   a namespace-scope `const` object has internal linkage, so test suites
   must be declared `extern` in a shared header (`tests/unit/Suites.h`).
 - Wrote the hand-written lexer (`jiaLex`) and its design note.
+- Added `jiaAST`: variant-based tree, uniqued types, dumper, constant folder. Turned off `-Wmissing-field-initializers`, which fires on designated initializers that rely on default member values.

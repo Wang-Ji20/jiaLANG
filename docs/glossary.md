@@ -53,3 +53,23 @@ a number, an operator.
 **X-macro.** A C/C++ technique where a list is written once in a file and
 expanded several times with different macro definitions. Our
 `TokenKinds.def` is one.
+
+**Array decay.** C's rule that an array used as a value turns into a
+pointer to its first element. In `int a[3]; int *p = a;` the `a` decays.
+Sema shows decay as a `Cast ArrayToPointer` node.
+
+**Constant folding.** Computing an expression at compile time, so
+`2 * 8` becomes `16` before the program runs.
+
+**Lvalue / rvalue.** An lvalue names a memory location and can be
+assigned to (`x`, `*p`, `a[i]`). An rvalue is a temporary value
+(`x + 1`). See [design/ast-and-types.md](design/ast-and-types.md).
+
+**Symbol.** A declared entity: a variable, parameter, or function. Sema
+gives each one a `SymbolId`.
+
+**Translation unit.** One source file as the compiler sees it, with all
+its declarations. It is the unit that becomes one object file.
+
+**Uniquing.** Keeping only one copy of each distinct value, so equal
+values share one address. Our types are uniqued.
