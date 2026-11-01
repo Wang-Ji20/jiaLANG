@@ -25,6 +25,11 @@ namespace jia {
 
 template <class T> using Box = std::unique_ptr<T>;
 
+/// Moves \p value onto the heap: box(expr) is Rust's Box::new(expr).
+template <class T> [[nodiscard]] Box<T> box(T value) {
+  return std::make_unique<T>(std::move(value));
+}
+
 /// Identifies a declared entity (variable, parameter, function). Sema
 /// assigns ids; code generation maps them to LLVM values.
 enum class SymbolId : std::uint32_t { None = 0 };
