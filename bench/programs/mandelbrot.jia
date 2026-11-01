@@ -1,0 +1,28 @@
+// Floating-point arithmetic: count points of the Mandelbrot set. Literals
+// carry an f suffix: in C a bare 3.0 is a double, in Jia every float
+// literal is a float, and the suffix makes both compilers agree.
+int printf(char *fmt, ...);
+
+int main() {
+  int size = 600, inside = 0, y = 0;
+  while (y < size) {
+    int x = 0;
+    while (x < size) {
+      float cr = 3.0f * x / size - 2.0f;
+      float ci = 2.0f * y / size - 1.0f;
+      float zr = 0.0f, zi = 0.0f;
+      int iter = 0;
+      while (iter < 200 && zr * zr + zi * zi < 4.0f) {
+        float t = zr * zr - zi * zi + cr;
+        zi = 2.0f * zr * zi + ci;
+        zr = t;
+        iter = iter + 1;
+      }
+      if (iter == 200) inside = inside + 1;
+      x = x + 1;
+    }
+    y = y + 1;
+  }
+  printf("points inside: %d\n", inside);
+  return 0;
+}

@@ -10,3 +10,4 @@ does. Read them in pipeline order:
 5. [sema.md](sema.md) — checking and annotating the tree
 6. [codegen.md](codegen.md) — the tree to LLVM IR
 7. [testing.md](testing.md) — how we know it works
+8. [benchmarking.md](benchmarking.md) — how we measure speed

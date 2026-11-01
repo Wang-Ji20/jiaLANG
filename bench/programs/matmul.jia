@@ -1,0 +1,45 @@
+// Nested loops and 2-D indexing: integer matrix multiplication.
+int printf(char *fmt, ...);
+
+int a[200][200];
+int b[200][200];
+int c[200][200];
+
+int main() {
+  int n = 200, i = 0;
+  while (i < n) {
+    int j = 0;
+    while (j < n) {
+      a[i][j] = (i * 7 + j * 3) % 17;
+      b[i][j] = (i * 5 + j * 11) % 13;
+      j = j + 1;
+    }
+    i = i + 1;
+  }
+  int rep = 0;
+  while (rep < 5) {
+    i = 0;
+    while (i < n) {
+      int j = 0;
+      while (j < n) {
+        int sum = 0, k = 0;
+        while (k < n) {
+          sum = sum + a[i][k] * b[k][j];
+          k = k + 1;
+        }
+        c[i][j] = sum;
+        j = j + 1;
+      }
+      i = i + 1;
+    }
+    rep = rep + 1;
+  }
+  int check = 0;
+  i = 0;
+  while (i < n) {
+    check = (check + c[i][(i * 13) % n]) % 1000007;
+    i = i + 1;
+  }
+  printf("checksum %d\n", check);
+  return 0;
+}

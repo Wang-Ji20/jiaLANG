@@ -263,3 +263,13 @@ ctest --test-dir build --output-on-failure   # all tests
 ```
 
 How to write tests is explained in [design/testing.md](design/testing.md).
+
+Benchmarks compare `jiac` with the system C compiler (use a Release
+build):
+
+```sh
+cmake --build build --target bench   # report in build/bench/report.md
+```
+
+See [design/benchmarking.md](design/benchmarking.md) for what is
+measured and how to add a benchmark.

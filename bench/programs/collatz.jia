@@ -1,0 +1,22 @@
+// Tight integer loop with division: longest Collatz chain below 100000.
+// Every intermediate value stays below 2^31.
+int printf(char *fmt, ...);
+
+int main() {
+  int best = 0, bestStart = 0, n = 1;
+  while (n < 100000) {
+    int x = n, steps = 0;
+    while (x != 1) {
+      if (x % 2 == 0) x = x / 2;
+      else x = 3 * x + 1;
+      steps = steps + 1;
+    }
+    if (steps > best) {
+      best = steps;
+      bestStart = n;
+    }
+    n = n + 1;
+  }
+  printf("longest chain below 100000 starts at %d (%d steps)\n", bestStart, best);
+  return 0;
+}

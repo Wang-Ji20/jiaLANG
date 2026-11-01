@@ -1,0 +1,36 @@
+// Memory-bound loops: sieve of Eratosthenes, repeated.
+int printf(char *fmt, ...);
+
+char composite[2000000];
+
+int sieve(int n) {
+  int i = 0;
+  while (i < n) {
+    composite[i] = 0;
+    i = i + 1;
+  }
+  int count = 0;
+  i = 2;
+  while (i < n) {
+    if (!composite[i]) {
+      count = count + 1;
+      int j = i + i;
+      while (j < n) {
+        composite[j] = 1;
+        j = j + i;
+      }
+    }
+    i = i + 1;
+  }
+  return count;
+}
+
+int main() {
+  int round = 0, count = 0;
+  while (round < 10) {
+    count = sieve(2000000);
+    round = round + 1;
+  }
+  printf("primes below 2000000: %d\n", count);
+  return 0;
+}

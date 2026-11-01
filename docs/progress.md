@@ -44,3 +44,6 @@ bug turns up.
 
 - [x] README, getting started, user manual (CLI, language reference,
       grammar, C interop), architecture, design docs, glossary
+- [x] `jia-bench`: six programs against `cc` at `-O0`/`-O2`, plus compile
+      throughput; `bench-smoke` in ctest. Baseline in
+      `docs/research/benchmark-baseline-2026-11-01.md`
