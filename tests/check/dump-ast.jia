@@ -1,0 +1,20 @@
+// The typed tree shows every implicit conversion. Note that sum / n is an
+// integer division whose result is then converted, exactly as in C.
+// RUN: %jiac --dump-ast %s
+// CHECK: FunctionDecl average 'float(int *, int)'
+// CHECK-NEXT: ParamDecl xs 'int *'
+// CHECK-NEXT: ParamDecl n 'int'
+// CHECK: Binary + 'int *'
+// CHECK: ReturnStmt
+// CHECK-NEXT: Cast IntToFloat implicit 'float'
+// CHECK-NEXT: Binary / 'int'
+// CHECK-NEXT: DeclRef sum 'int' lvalue
+float average(int *xs, int n) {
+  int sum = 0;
+  int i = 0;
+  while (i < n) {
+    sum = sum + xs[i];
+    i = i + 1;
+  }
+  return sum / n;
+}

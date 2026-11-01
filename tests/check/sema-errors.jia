@@ -1,0 +1,16 @@
+// RUN-FAIL: %jiac -fsyntax-only %s
+// CHECK: 10:11: error: use of undeclared identifier 'missing'
+// CHECK: 11:7: error: incompatible types when assigning to 'int *' from 'float'
+// CHECK: 12:5: error: cannot assign to variable 'k' with const-qualified type
+// CHECK: 13:3: error: too many arguments to function call, expected 0, have 1
+// CHECK: 14:3: error: 'continue' statement not in loop statement
+// CHECK: 15:10: error: void function should not return a value
+int g(void);
+void f(int *p, float x, const int k) {
+  p = p + missing;
+  p = x;
+  k = 1;
+  g(1);
+  continue;
+  return 1;
+}

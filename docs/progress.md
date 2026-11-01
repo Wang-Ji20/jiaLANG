@@ -29,3 +29,9 @@ bug turns up.
       initializers
 - [x] Driver: `-c`, `-S`, `-emit-llvm`, `-O0..3`, `--target`,
       `-fsyntax-only`, `--dump-tokens`, `--dump-ast`; links with `$CC`
+
+## Testing
+
+- [x] Unit tests (`tests/unit`, 33 cases)
+- [x] `jia-lit`: self-contained lit/FileCheck replacement
+- [x] Check tests for the driver, dumps, and diagnostics of each phase

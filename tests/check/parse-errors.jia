@@ -1,0 +1,12 @@
+// Each broken statement is reported; recovery finds the next one.
+// RUN-FAIL: %jiac -fsyntax-only %s
+// CHECK: parse-errors.jia:9:10: error: expected expression before ';'
+// CHECK-NEXT: 9 |   x = 1 +;
+// CHECK-NEXT: |          ^
+// CHECK: parse-errors.jia:10:9: error: expected ';' before '}'
+// CHECK: parse-errors.jia:12:7: error: function pointers are not supported yet
+void f() {
+  x = 1 +;
+  y = 2 }
+int g() { return 0; }
+int (*h)(int);

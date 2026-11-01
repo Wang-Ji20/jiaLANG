@@ -1,0 +1,18 @@
+// Command-line handling.
+// RUN: %jiac --help
+// CHECK: USAGE: jiac [options] <inputs>
+// RUN: %jiac --version
+// CHECK: jiac 0.2.0
+// RUN-FAIL: %jiac
+// CHECK: jiac: error: no input files
+// RUN-FAIL: %jiac --bogus %s
+// CHECK: jiac: error: unknown argument: '--bogus'
+// RUN-FAIL: %jiac %S/does-not-exist.jia
+// CHECK: cannot open
+// RUN: %jiac -fsyntax-only %s
+// CHECK-NOT: error
+// RUN: %jiac -c %s -o %t.o && test -s %t.o
+// RUN: %jiac -S %s -o -
+// CHECK: main:
+
+int main() { return 0; }

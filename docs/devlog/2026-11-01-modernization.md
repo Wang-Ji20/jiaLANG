@@ -25,3 +25,4 @@ the groundwork for a C compiler that can build Redis.
 - Wrote semantic analysis (`jiaSema`) with 8 test groups covering conversions, desugaring, scopes, and error messages.
 - Wrote code generation (`jiaCodeGen`). LLVM 23 note: `BasicBlock::getTerminator()` now asserts on blocks without one; use `hasTerminator()` to ask.
 - Wrote the driver (`jiaDriver`) and the `jiac` tool; removed the legacy `src/`, makefiles, and `tools/env.sh`. First end-to-end run: `fib(20) = 6765`. At `-O2` LLVM turns the recursive `fib` into an accumulator loop.
+- Wrote `jia-lit`, a self-contained replacement for lit and FileCheck, and the first check tests. Of five failing first drafts, all five were wrong expectations (for example, `sum / n` is integer division in C), none were compiler bugs.

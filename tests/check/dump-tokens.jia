@@ -1,0 +1,6 @@
+// RUN: %jiac --dump-tokens %s
+// CHECK: KwInt 'int' 6:1
+// CHECK-NEXT: Identifier 'x' 6:5
+// CHECK-NEXT: Equal '=' 6:7
+// CHECK-NEXT: CharLiteral ''\n'' 6:9
+int x = '\n';
