@@ -25,7 +25,7 @@ only the libraries below it in this table.
 |---|---|---|---|
 | `jiaDriver` | `jia/Driver/` | Command line, files, running the pipeline, linking | planned |
 | `jiaCodeGen` | `jia/CodeGen/` | Typed AST → LLVM IR | planned |
-| `jiaSema` | `jia/Sema/` | Name resolution, type checking, implicit conversions | planned |
+| `jiaSema` | `jia/Sema/` | Name resolution, type checking, implicit conversions | done |
 | `jiaParse` | `jia/Parse/` | Tokens → AST | done |
 | `jiaAST` | `jia/AST/` | Tree and type data structures, AST dumper, constant folding | done |
 | `jiaLex` | `jia/Lex/` | Source text → tokens; literal decoding | done |

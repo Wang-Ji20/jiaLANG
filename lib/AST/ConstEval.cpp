@@ -24,7 +24,7 @@ Opt fitTo(ConstValue value, const Type *type) {
   case TypeKind::Int: {
     const auto *i = std::get_if<std::int64_t>(&value);
     if (!i) {
-      const double d = std::get<double>(value);
+      const double d = *std::get_if<double>(&value);
       if (!(d > -9.3e18 && d < 9.3e18))
         return std::nullopt;
       value = static_cast<std::int64_t>(d);
@@ -50,9 +50,9 @@ Opt foldBinary(BinaryOp op, ConstValue l, ConstValue r) {
   }
   if (isInt) {
     // Wrap instead of overflowing, which would be undefined behaviour.
-    const auto a = static_cast<std::uint64_t>(std::get<std::int64_t>(l));
-    const auto b = static_cast<std::uint64_t>(std::get<std::int64_t>(r));
-    const auto sa = std::get<std::int64_t>(l), sb = std::get<std::int64_t>(r);
+    const auto a = static_cast<std::uint64_t>(*std::get_if<std::int64_t>(&l));
+    const auto b = static_cast<std::uint64_t>(*std::get_if<std::int64_t>(&r));
+    const auto sa = *std::get_if<std::int64_t>(&l), sb = *std::get_if<std::int64_t>(&r);
     switch (op) {
     case BinaryOp::Add: return static_cast<std::int64_t>(a + b);
     case BinaryOp::Sub: return static_cast<std::int64_t>(a - b);
@@ -104,7 +104,7 @@ Opt fold(const Expr &expr) {
               if (const auto *i = std::get_if<std::int64_t>(&*v))
                 return static_cast<std::int64_t>(
                     0 - static_cast<std::uint64_t>(*i));
-              return -std::get<double>(*v);
+              return -*std::get_if<double>(&*v);
             case UnaryOp::Not:
               return std::int64_t{asDouble(*v) == 0};
             default:

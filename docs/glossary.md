@@ -89,3 +89,24 @@ is a function that calls the functions for its parts.
 
 **Synchronize (error recovery).** After a syntax error, skip ahead to a
 point where parsing can safely restart, such as the next `;`.
+
+**Desugaring.** Rewriting a convenient form ("syntactic sugar") into a
+more basic one with the same meaning, such as `a[i]` into `*(a + i)`.
+
+**Implicit conversion.** A type conversion the language performs without
+a cast, such as `char` to `int` in `c + 1`.
+
+**Integer promotion.** C's rule that `char` values become `int` before
+arithmetic.
+
+**Scope.** The region of a program in which a name refers to a given
+declaration.
+
+**Sema (semantic analysis).** The phase that checks types and names and
+annotates the tree. The name comes from Clang.
+
+**Usual arithmetic conversions.** C's rule for giving the two operands of
+an arithmetic operator a common type.
+
+**Variadic function.** A function that takes a variable number of
+arguments, declared with `...`, such as `printf`.
