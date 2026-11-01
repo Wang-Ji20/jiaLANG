@@ -15,3 +15,6 @@ bug turns up.
       char and string literals with escapes, `//` and `/* */` comments
 - [x] AST as `std::variant` sum types; uniqued types; AST dumper
 - [x] Constant folding shared by parser, Sema, and code generation
+- [x] Parser: declarations with C declarators (pointers, arrays,
+      prototypes, `...`), initializer lists, all statements, all
+      operators, casts, `sizeof`; error recovery

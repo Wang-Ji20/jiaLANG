@@ -21,3 +21,4 @@ the groundwork for a C compiler that can build Redis.
   must be declared `extern` in a shared header (`tests/unit/Suites.h`).
 - Wrote the hand-written lexer (`jiaLex`) and its design note.
 - Added `jiaAST`: variant-based tree, uniqued types, dumper, constant folder. Turned off `-Wmissing-field-initializers`, which fires on designated initializers that rely on default member values.
+- Wrote the recursive-descent parser (`jiaParse`). Bug caught while writing it: if a block contained an error, returning failure from `parseCompound` made file-scope recovery skip the *next* declaration too; the block is now kept and only its broken statements dropped.

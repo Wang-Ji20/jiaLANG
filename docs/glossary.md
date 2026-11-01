@@ -73,3 +73,19 @@ its declarations. It is the unit that becomes one object file.
 
 **Uniquing.** Keeping only one copy of each distinct value, so equal
 values share one address. Our types are uniqued.
+
+**Declarator.** The part of a C declaration that names the entity and
+wraps the base type: in `int *a[3];` the base type is `int` and the
+declarator is `*a[3]`.
+
+**Parser.** The phase that turns tokens into a tree, following the
+language's grammar.
+
+**Precedence.** Which operator binds tighter. `*` has higher precedence
+than `+`, so `1 + 2 * 3` is `1 + (2 * 3)`.
+
+**Recursive descent.** A way of writing a parser where each grammar rule
+is a function that calls the functions for its parts.
+
+**Synchronize (error recovery).** After a syntax error, skip ahead to a
+point where parsing can safely restart, such as the next `;`.
