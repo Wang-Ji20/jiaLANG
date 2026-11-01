@@ -26,7 +26,7 @@ target_include_directories(jia_options SYSTEM INTERFACE ${LLVM_INCLUDE_DIRS})
 separate_arguments(_llvm_defs NATIVE_COMMAND ${LLVM_DEFINITIONS})
 target_compile_definitions(jia_options INTERFACE ${_llvm_defs})
 target_compile_options(jia_options INTERFACE
-  -Wall -Wextra -Wpedantic -Wshadow -fno-exceptions
+  -Wall -Wextra -Wpedantic -Wshadow -Wno-missing-field-initializers -fno-exceptions
   $<$<BOOL:${JIA_WERROR}>:-Werror>)
 if(JIA_SANITIZE)
   target_compile_options(jia_options INTERFACE -fsanitize=address,undefined -fno-omit-frame-pointer)
