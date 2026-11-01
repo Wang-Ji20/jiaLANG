@@ -47,3 +47,22 @@ bug turns up.
 - [x] `jia-bench`: six programs against `cc` at `-O0`/`-O2`, plus compile
       throughput; `bench-smoke` in ctest. Baseline in
       `docs/research/benchmark-baseline-2026-11-01.md`
+
+## Milestones
+
+See the [roadmap](roadmap.md) for what each milestone means.
+
+- [x] M0 — Jia on LLVM
+- [ ] Phase 0 — harden the base (CI, sanitizers, warnings, source
+      manager, TargetInfo, fuzzing); see the [plan](plan.md)
+- [ ] M1 — C scalar types and operators
+- [ ] M2 — aggregates and declarations
+- [ ] M3 — preprocessor
+- [ ] M4 — system headers and GNU C
+- [ ] M5 — real programs: Lua, hiredis, SQLite
+- [ ] M6 — Redis on LLVM
+- [ ] M7 — own back end (x86-64, AArch64, RISC-V)
+- [ ] M8 — own assembler
+- [ ] M9 — own linker
+- [ ] M10 — own C library
+- [ ] M11 — Redis with no external tools
