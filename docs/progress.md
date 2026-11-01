@@ -18,3 +18,6 @@ bug turns up.
 - [x] Parser: declarations with C declarators (pointers, arrays,
       prototypes, `...`), initializer lists, all statements, all
       operators, casts, `sizeof`; error recovery
+- [x] Sema: scopes, symbol resolution, type checking, implicit
+      conversions, pointer arithmetic, constant global initializers,
+      array-size inference, non-cascading errors
