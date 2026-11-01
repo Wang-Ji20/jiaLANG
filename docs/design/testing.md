@@ -67,6 +67,26 @@ Run one test, showing its output even on success:
 ./build/tests/jia-lit --jiac build/tools/jiac -v tests/check/dump-ast.jia
 ```
 
+## Differential testing
+
+Jia is a subset of C, so every Jia program is also a C program. Most
+end-to-end tests exploit this: they compile the same file with the
+system C compiler and with `jiac` (at `-O0` and `-O2`) and require
+identical output.
+
+```c
+// RUN: %cc -w -x c %s -o %t.ref && %t.ref > %t.expected
+// RUN: %jiac %s -o %t && %t > %t.actual && diff %t.expected %t.actual
+```
+
+The C compiler acts as an *oracle*: we do not have to work out every
+expected value by hand, and a wrong answer anywhere in the output fails
+the test. A few `CHECK` lines still pin key values, so that a bug shared
+by both compilers (or a test that prints nothing) cannot pass silently.
+
+`tests/e2e/legacy.jia` is the 2022 compiler's test program, unchanged,
+with its C++ harness ported to C in `tests/e2e/Inputs/`.
+
 ## Guidelines
 
 - Test behaviour, not implementation. A check test should pin what a

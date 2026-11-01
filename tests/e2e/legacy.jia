@@ -1,3 +1,23 @@
+// The test program of the 2022 course compiler, unchanged except for this
+// header. The harness in Inputs/ calls each function and prints the result;
+// we compare against the same program built by the system C compiler.
+// RUN: %cc -w -x c %s -x none %S/Inputs/legacy-harness.c -o %t.ref && %t.ref > %t.expected
+// RUN: %jiac %s %S/Inputs/legacy-harness.c -o %t && %t > %t.actual && diff %t.expected %t.actual
+// RUN: cat %t.actual
+// CHECK: iadd 2
+// CHECK-NEXT: ffadd 16.46
+// CHECK-NEXT: complex_comp 63
+// CHECK-NEXT: addr 44
+// CHECK-NEXT: always10 10
+// CHECK-NEXT: abs 898 898
+// CHECK-NEXT: gcd 12 5
+// CHECK-NEXT: breakandcall 3
+// CHECK-NEXT: arraysum 15
+// CHECK-NEXT: ass 2
+// CHECK-NEXT: copyarr 1 2 3 4 5
+// CHECK-NEXT: kmp 5 12 39
+// CHECK-NEXT: sort 1 1 2 3 3 4 4 6 8 22
+
 
 int ass(int a, int b){
     int dhhh[3];

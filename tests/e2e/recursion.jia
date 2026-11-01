@@ -1,0 +1,51 @@
+// Recursion, mutual recursion through prototypes, and globals.
+// RUN: %cc -w -x c %s -o %t.ref && %t.ref > %t.expected
+// RUN: %jiac %s -o %t && %t > %t.actual && diff %t.expected %t.actual
+// RUN: %jiac -O2 %s -o %t.opt && %t.opt > %t.actual2 && diff %t.expected %t.actual2
+// RUN: cat %t.actual
+// CHECK: fib 6765
+// CHECK: ack 61
+// CHECK: even 1 0
+int printf(char *fmt, ...);
+
+int isOdd(int n);
+
+int isEven(int n) {
+  if (n == 0) return 1;
+  return isOdd(n - 1);
+}
+
+int isOdd(int n) {
+  if (n == 0) return 0;
+  return isEven(n - 1);
+}
+
+int fib(int n) {
+  if (n < 2) return n;
+  return fib(n - 1) + fib(n - 2);
+}
+
+int ack(int m, int n) {
+  if (m == 0) return n + 1;
+  if (n == 0) return ack(m - 1, 1);
+  return ack(m - 1, ack(m, n - 1));
+}
+
+int depth = 0;
+int maxDepth = 0;
+
+void dive(int n) {
+  depth = depth + 1;
+  if (depth > maxDepth) maxDepth = depth;
+  if (n > 0) dive(n - 1);
+  depth = depth - 1;
+}
+
+int main() {
+  printf("fib %d\n", fib(20));
+  printf("ack %d\n", ack(2, 29));
+  printf("even %d %d\n", isEven(10), isEven(7));
+  dive(100);
+  printf("depth %d %d\n", depth, maxDepth);
+  return 0;
+}

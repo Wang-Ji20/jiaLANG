@@ -1,0 +1,28 @@
+// && and || evaluate their right operand only when needed.
+// RUN: %cc -w -x c %s -o %t.ref && %t.ref > %t.expected
+// RUN: %jiac %s -o %t && %t > %t.actual && diff %t.expected %t.actual
+// RUN: %jiac -O2 %s -o %t.opt && %t.opt > %t.actual2 && diff %t.expected %t.actual2
+// RUN: cat %t.actual
+// CHECK: and 0 calls 1
+// CHECK: or 1 calls 1
+// CHECK: safe 0
+int printf(char *fmt, ...);
+
+int calls = 0;
+
+int touch(int v) {
+  calls = calls + 1;
+  return v;
+}
+
+int main() {
+  int r = touch(0) && touch(1);
+  printf("and %d calls %d\n", r, calls);
+  calls = 0;
+  r = touch(1) || touch(0);
+  printf("or %d calls %d\n", r, calls);
+  int *p = 0;
+  printf("safe %d\n", p != 0 && *p == 3);  // would crash without short-circuit
+  printf("values %d %d %d\n", 2 && 3, 0 || 0.5, !(1 && 0));
+  return 0;
+}

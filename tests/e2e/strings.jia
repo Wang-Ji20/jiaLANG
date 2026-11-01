@@ -1,0 +1,40 @@
+// String literals, char arrays, escapes, and calling the C library.
+// RUN: %cc -w -x c %s -o %t.ref && %t.ref > %t.expected
+// RUN: %jiac %s -o %t && %t > %t.actual && diff %t.expected %t.actual
+// RUN: %jiac -O2 %s -o %t.opt && %t.opt > %t.actual2 && diff %t.expected %t.actual2
+// RUN: cat %t.actual
+// CHECK: len 13
+// CHECK: upper HELLO, JIA!
+int printf(char *fmt, ...);
+int putchar(int c);
+int puts(char *s);
+
+int length(char *s) {
+  int n = 0;
+  while (s[n] != 0)
+    n = n + 1;
+  return n;
+}
+
+void upper(char *s) {
+  while (*s) {
+    if (*s >= 'a' && *s <= 'z')
+      *s = *s - 'a' + 'A';
+    s = s + 1;
+  }
+}
+
+char greeting[] = "hello, jia!";
+
+int main() {
+  printf("len %d\n", length("hello, world!"));
+  upper(greeting);
+  printf("upper %s\n", greeting);
+  char buf[4] = "abc";
+  buf[1] = 'X';
+  puts(buf);
+  printf("escapes [%c%c%c] %d\n", '\x41', '\102', 'C', '\n');
+  putchar('o'); putchar('k'); putchar('\n');
+  printf("concat %s\n", "con" "cat");
+  return 0;
+}

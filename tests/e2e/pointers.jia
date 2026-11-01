@@ -1,0 +1,39 @@
+// Address-of, dereference, pointer arithmetic, and pointer comparison.
+// RUN: %cc -w -x c %s -o %t.ref && %t.ref > %t.expected
+// RUN: %jiac %s -o %t && %t > %t.actual && diff %t.expected %t.actual
+// RUN: %jiac -O2 %s -o %t.opt && %t.opt > %t.actual2 && diff %t.expected %t.actual2
+// RUN: cat %t.actual
+// CHECK: swap 2 1
+// CHECK: diff 3
+int printf(char *fmt, ...);
+
+void swap(int *a, int *b) {
+  int t = *a;
+  *a = *b;
+  *b = t;
+}
+
+int main() {
+  int x = 1, y = 2;
+  swap(&x, &y);
+  printf("swap %d %d\n", x, y);
+
+  int xs[5] = {10, 20, 30, 40, 50};
+  int *p = xs;
+  int *q = p + 3;
+  printf("diff %d\n", q - p);
+  printf("walk %d %d %d\n", *p, *(p + 1), *(q - 1));
+  printf("order %d %d %d\n", p < q, q == xs + 3, p != q);
+  *q = 99;
+  printf("write %d\n", xs[3]);
+
+  int **pp = &p;
+  **pp = 7;
+  printf("double %d\n", xs[0]);
+
+  char *none = 0;
+  void *generic = xs;
+  int *back = generic;
+  printf("null %d generic %d\n", none == 0, *back);
+  return 0;
+}

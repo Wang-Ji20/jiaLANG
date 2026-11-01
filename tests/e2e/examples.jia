@@ -1,0 +1,6 @@
+// The programs in examples/ must keep working.
+// RUN: %jiac %S/../../examples/hello.jia -o %t.hello && %t.hello
+// CHECK: Hello, Jia!
+// RUN: %jiac -O2 %S/../../examples/sort.jia -o %t.sort && %t.sort
+// CHECK: 31 4 15 92 65 35 89 79 32 38
+// CHECK-NEXT: 4 15 31 32 35 38 65 79 89 92

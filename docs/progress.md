@@ -35,3 +35,7 @@ bug turns up.
 - [x] Unit tests (`tests/unit`, 33 cases)
 - [x] `jia-lit`: self-contained lit/FileCheck replacement
 - [x] Check tests for the driver, dumps, and diagnostics of each phase
+- [x] Differential end-to-end tests against the system C compiler at
+      `-O0` and `-O2`: arithmetic, control flow, short-circuit, pointers,
+      arrays, strings, recursion
+- [x] The 2022 test program passes unchanged (`tests/e2e/legacy.jia`)

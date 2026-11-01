@@ -1,0 +1,8 @@
+// The classic first program. Build and run:
+//   jiac examples/hello.jia -o hello && ./hello
+int printf(char *fmt, ...);
+
+int main() {
+  printf("Hello, Jia!\n");
+  return 0;
+}
