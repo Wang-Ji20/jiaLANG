@@ -11,3 +11,4 @@ does. Read them in pipeline order:
 6. [codegen.md](codegen.md) — the tree to LLVM IR
 7. [testing.md](testing.md) — how we know it works
 8. [benchmarking.md](benchmarking.md) — how we measure speed
+9. [ci.md](ci.md) — what runs on every push

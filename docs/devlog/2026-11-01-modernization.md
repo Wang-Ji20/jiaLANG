@@ -32,3 +32,8 @@ the groundwork for a C compiler that can build Redis.
 - Wrote the roadmap (two arcs: a C compiler that builds Redis on LLVM, then our own back end, assembler, linker, and C library) and the detailed plan for Phase 0, M1, and M2.
 - Wrote research notes on what Redis needs (with a feature-census method to replace guesses with counts) and on prior art for our own back end, assembler, linker, and C library (chibicc, QBE, cproc, mold, musl).
 - Applied `clang-format` to every source file (mechanical; 851 lines). Verified a clang++ build with `-Werror`, ASan, UBSan, and LeakSanitizer: all four test suites pass.
+- Added GitHub Actions CI (the project is now hosted on GitHub). Before
+  writing it, made the code portable to what Ubuntu 24.04 runners have:
+  replaced `std::formattable` (missing in GCC 14's libstdc++) with a
+  small `Printable` concept, and `BasicBlock::hasTerminator()` (missing
+  in LLVM 21) with a check of the last instruction.

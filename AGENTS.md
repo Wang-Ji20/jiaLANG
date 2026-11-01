@@ -18,7 +18,9 @@ concrete steps.
   about 500. Generated files, moved files, and deletions of legacy code
   are the only exceptions; say so in the commit message.
 - **Every commit builds and passes the tests.** Run `ctest` (see
-  [Getting Started](docs/getting-started.md)) before committing.
+  [Getting Started](docs/getting-started.md)) before committing. CI
+  (`.github/workflows/ci.yml`, see [design/ci.md](docs/design/ci.md))
+  must be green before a pull request merges.
 - **Every commit updates the documentation** that its change affects.
   A change without matching docs is not finished.
 - **Message format.** `area: summary in the imperative mood`, for

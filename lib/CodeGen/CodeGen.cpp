@@ -24,6 +24,13 @@
 namespace jia {
 namespace {
 
+/// Whether \p bb already ends in a terminator. (BasicBlock::getTerminator()
+/// asserts on unterminated blocks in LLVM 23, and hasTerminator() is too
+/// new for LLVM 21, so ask the last instruction directly.)
+bool isTerminated(const llvm::BasicBlock &bb) {
+  return !bb.empty() && bb.back().isTerminator();
+}
+
 class ModuleBuilder {
 public:
   ModuleBuilder(llvm::LLVMContext &ctx, std::string_view name)
@@ -113,7 +120,7 @@ private:
     }
     for (const Stmt &stmt : decl.body->body)
       emit(stmt);
-    if (!b_.GetInsertBlock()->hasTerminator()) {
+    if (!isTerminated(*b_.GetInsertBlock())) {
       // Falling off the end: C returns garbage, we return zero (and main
       // returning 0 is what C requires).
       llvm::Type *ret = f->getReturnType();
@@ -143,7 +150,7 @@ private:
   }
 
   void branchTo(llvm::BasicBlock *target) {
-    if (!b_.GetInsertBlock()->hasTerminator())
+    if (!isTerminated(*b_.GetInsertBlock()))
       b_.CreateBr(target);
   }
 

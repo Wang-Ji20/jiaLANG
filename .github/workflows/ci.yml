@@ -1,0 +1,110 @@
+# Continuous integration on GitHub-hosted runners (free for public repos).
+# See docs/design/ci.md for what each job checks and why.
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+# A newer push to the same branch or pull request cancels the older run.
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  # The newest LLVM we support; jobs that test the oldest one override it.
+  LLVM_LATEST: "23"
+  LLVM_OLDEST: "21"
+
+jobs:
+  build-and-test:
+    name: ${{ matrix.name }}
+    runs-on: ubuntu-24.04
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: GCC 14 / LLVM 21 / Debug
+            cc: gcc-14
+            cxx: g++-14
+            llvm: oldest
+            build_type: Debug
+            sanitize: "OFF"
+          - name: Clang / LLVM 23 / Debug
+            cc: clang
+            cxx: clang++
+            llvm: latest
+            build_type: Debug
+            sanitize: "OFF"
+          - name: Clang / LLVM 23 / ASan + UBSan
+            cc: clang
+            cxx: clang++
+            llvm: latest
+            build_type: Debug
+            sanitize: "ON"
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install LLVM
+        run: |
+          version=${{ matrix.llvm == 'oldest' && env.LLVM_OLDEST || env.LLVM_LATEST }}
+          bash .github/scripts/install-llvm.sh "$version"
+          echo "LLVM_VERSION=$version" >> "$GITHUB_ENV"
+
+      - name: Configure
+        run: |
+          cc=${{ matrix.cc }}; cxx=${{ matrix.cxx }}
+          # "clang" means the clang that ships with the installed LLVM.
+          [ "$cc" = clang ] && cc=clang-$LLVM_VERSION && cxx=clang++-$LLVM_VERSION
+          cmake -S . -B build -G Ninja \
+            -DCMAKE_C_COMPILER=$cc -DCMAKE_CXX_COMPILER=$cxx \
+            -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} \
+            -DLLVM_DIR=/usr/lib/llvm-$LLVM_VERSION/lib/cmake/llvm \
+            -DJIA_WERROR=ON -DJIA_SANITIZE=${{ matrix.sanitize }}
+
+      - name: Build
+        run: cmake --build build
+
+      - name: Test
+        run: ctest --test-dir build --output-on-failure
+
+  format:
+    name: clang-format
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install clang-format
+        run: bash .github/scripts/install-llvm.sh "$LLVM_LATEST" clang-format
+      - name: Check formatting
+        run: git ls-files '*.cpp' '*.h' | xargs clang-format-$LLVM_LATEST --dry-run --Werror
+
+  benchmark:
+    name: Benchmark (Release)
+    # Shared runners give noisy timings, so this job reports numbers rather
+    # than enforcing them. It runs on main and on demand, not on every PR.
+    if: github.event_name != 'pull_request'
+    needs: build-and-test
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install LLVM
+        run: bash .github/scripts/install-llvm.sh "$LLVM_LATEST"
+      - name: Build
+        run: |
+          cmake -S . -B build -G Ninja -DCMAKE_BUILD_TYPE=Release \
+            -DCMAKE_C_COMPILER=clang-$LLVM_LATEST -DCMAKE_CXX_COMPILER=clang++-$LLVM_LATEST \
+            -DLLVM_DIR=/usr/lib/llvm-$LLVM_LATEST/lib/cmake/llvm
+          cmake --build build
+      - name: Run benchmarks
+        run: |
+          cmake --build build --target bench
+          cat build/bench/report.md >> "$GITHUB_STEP_SUMMARY"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: benchmark-report
+          path: build/bench/report.md

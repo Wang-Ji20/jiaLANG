@@ -53,8 +53,11 @@ bug turns up.
 See the [roadmap](roadmap.md) for what each milestone means.
 
 - [x] M0 — Jia on LLVM
-- [ ] Phase 0 — harden the base (CI, sanitizers, warnings, source
-      manager, TargetInfo, fuzzing); see the [plan](plan.md)
+- [ ] Phase 0 — harden the base; see the [plan](plan.md)
+  - [x] 0.1 CI on GitHub Actions (GCC 14 + LLVM 21, Clang + LLVM 23)
+  - [x] 0.2 sanitizer job (ASan + UBSan)
+  - [ ] 0.3–0.8 UB-checked references, warnings, source manager,
+        TargetInfo, fuzzing, source ranges
 - [ ] M1 — C scalar types and operators
 - [ ] M2 — aggregates and declarations
 - [ ] M3 — preprocessor

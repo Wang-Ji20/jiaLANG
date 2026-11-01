@@ -19,9 +19,15 @@
 #include <span>
 #include <string>
 #include <string_view>
+#include <type_traits>
 #include <vector>
 
 namespace jia::test {
+
+/// Whether std::format can print a T. (std::formattable is missing from
+/// the libstdc++ in GCC 14, which Ubuntu 24.04 ships.)
+template <class T>
+concept Printable = std::is_default_constructible_v<std::formatter<T, char>>;
 
 class Tester {
 public:
@@ -36,7 +42,7 @@ public:
                 std::source_location loc = std::source_location::current()) {
     if (actual == expected)
       return;
-    if constexpr (std::formattable<A, char> && std::formattable<B, char>)
+    if constexpr (Printable<A> && Printable<B>)
       fail(std::format("expected '{}'\n      actual   '{}'", expected, actual),
            loc);
     else

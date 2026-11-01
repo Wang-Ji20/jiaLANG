@@ -15,8 +15,8 @@ Groundwork that every later phase needs. Do these before M1.
 
 | # | Task | Size | Done when |
 |---|---|---|---|
-| 0.1 | **CI pipeline** on the GitLab server: build with `-DJIA_WERROR=ON`, run `ctest`, on GCC and Clang. | S | Every push runs the tests; a warning fails the build. |
-| 0.2 | **Sanitizer job**: a CI job with `-DJIA_SANITIZE=ON`. | S | `ctest` passes under ASan and UBSan. |
+| 0.1 | ~~**CI pipeline** on GitHub Actions: build with `-DJIA_WERROR=ON`, run `ctest`, on GCC and Clang.~~ Done, see [design/ci.md](design/ci.md). | S | Every push runs the tests; a warning fails the build. |
+| 0.2 | ~~**Sanitizer job**: a CI job with `-DJIA_SANITIZE=ON`.~~ Done. | S | `ctest` passes under ASan and UBSan. |
 | 0.3 | **UB-checked references**: e2e tests build their `cc` reference with `-fsanitize=undefined -fno-sanitize-recover`. | S | An e2e program with signed overflow fails its test. |
 | 0.4 | **Warnings channel**: phases return warnings alongside a successful result (`struct Output<T> { T value; Diagnostics warnings; }`). First warning: control reaches the end of a non-void function. | M | `jiac` prints warnings and still produces output; a check test covers the first warning. |
 | 0.5 | **Source manager**: `SourceLocation` gains a file id; a `SourceManager` owns every buffer. Diagnostics print the right file. | M | Unit tests cover two buffers. Needed by `#include` (M3). |

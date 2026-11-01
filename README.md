@@ -1,5 +1,7 @@
 # jiaLang
 
+[![CI](https://github.com/Wang-Ji20/jiaLANG/actions/workflows/ci.yml/badge.svg)](https://github.com/Wang-Ji20/jiaLANG/actions/workflows/ci.yml)
+
 > 身后有余忘缩手，眼前无路想回头。——《红楼梦》
 >
 > *With plenty behind him he forgot to hold back; with no road ahead he

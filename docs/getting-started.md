@@ -90,7 +90,13 @@ To see what the compiler does at each stage:
 ./build/tools/jiac -O2 -S hello.jia -o -         # optimized assembly
 ```
 
-## 5. Where to go next
+## 5. Continuous integration
+
+GitHub Actions runs the build and all tests on every push and pull
+request, with GCC and Clang, the oldest and newest supported LLVM, and
+sanitizers. See [design/ci.md](design/ci.md).
+
+## 6. Where to go next
 
 - Read [architecture.md](architecture.md) to see how the code is laid out.
 - Read [AGENTS.md](../AGENTS.md) before your first commit.
