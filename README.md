@@ -8,8 +8,7 @@
 > thinks of turning round.* — *Dream of the Red Chamber*
 
 jiaLang is a compiler for **Jia**, a small subset of C, built on LLVM and
-written in modern C++23. It began as a 2022 compiler-course project at
-Tsinghua University. We are now growing it into a C compiler good enough
+written in modern C++23. It began as a 2022 compiler-course project. We are now growing it into a C compiler good enough
 to build Redis, and in the long run into a complete toolchain with our
 own back end, assembler, linker, and C library.
 

@@ -38,3 +38,4 @@ the groundwork for a C compiler that can build Redis.
   small `Printable` concept, and `BasicBlock::hasTerminator()` (missing
   in LLVM 21) with a check of the last instruction.
 - First CI run on GitHub (draft PR #1): all four jobs green in about a minute each, with LLVM 21.1.8 and 23.1.5. Bumped `actions/checkout` and `upload-artifact` to v5 because v4 runs on the deprecated Node.js 20.
+- Moved hosting to GitHub (`github.com/Wang-Ji20/jiaLANG`) and removed the remaining reference to the old university server from the README.
