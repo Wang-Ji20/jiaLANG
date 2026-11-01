@@ -1,17 +1,52 @@
 # jiaLang
 
-身后有余忘缩手，眼前无路想回头。——《红楼梦》
+> 身后有余忘缩手，眼前无路想回头。——《红楼梦》
+>
+> *With plenty behind him he forgot to hold back; with no road ahead he
+> thinks of turning round.* — *Dream of the Red Chamber*
 
-jiaLang 是 2022 年秋季，编译原理课程大作业。详情见 wiki。
+jiaLang is a compiler for **Jia**, a small subset of C, built on LLVM and
+written in modern C++23. It began as a 2022 compiler-course project at
+Tsinghua University. We are now growing it into a C compiler good enough
+to build Redis, and in the long run into a complete toolchain with our
+own back end, assembler, linker, and C library.
 
-目录：
+```c
+int printf(char *fmt, ...);
 
-tools 一些工具
+int fib(int n) { if (n < 2) return n; return fib(n - 1) + fib(n - 2); }
 
-src 源代码文件夹
+int main() {
+  printf("fib(20) = %d\n", fib(20));
+  return 0;
+}
+```
 
-build 构建文件夹
+```sh
+cmake -S . -B build -G Ninja && cmake --build build
+./build/tools/jiac -O2 hello.jia -o hello && ./hello
+```
 
-examples 示例代码
+## Documentation
 
-在本目录输入 make build 构建编译器，输入 make run，自动编译 example 下所有程序。
+| Read this | To learn |
+|---|---|
+| [Getting started](docs/getting-started.md) | how to build, run, and test in ten minutes |
+| [User manual](docs/user-manual.md) | the `jiac` command and the Jia language |
+| [Architecture](docs/architecture.md) | how the code is laid out |
+| [Design docs](docs/design/) | why the code is written the way it is |
+| [Glossary](docs/glossary.md) | compiler terms and project jargon |
+| [Roadmap](docs/roadmap.md) and [plan](docs/plan.md) | where we are going, and what comes next |
+| [Progress](docs/progress.md) | what works today |
+| [AGENTS.md](AGENTS.md) | how we work: commits, docs, code style |
+
+## Layout
+
+```
+include/jia/  lib/   the compiler, as LLVM-style libraries
+tools/jiac/          the compiler executable
+tests/               unit, check, and end-to-end tests
+bench/               benchmarks against the system C compiler
+examples/            small Jia programs
+docs/                documentation, dev logs, and research notes
+```

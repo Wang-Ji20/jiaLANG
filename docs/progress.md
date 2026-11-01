@@ -39,3 +39,8 @@ bug turns up.
       `-O0` and `-O2`: arithmetic, control flow, short-circuit, pointers,
       arrays, strings, recursion
 - [x] The 2022 test program passes unchanged (`tests/e2e/legacy.jia`)
+
+## Documentation
+
+- [x] README, getting started, user manual (CLI, language reference,
+      grammar, C interop), architecture, design docs, glossary
