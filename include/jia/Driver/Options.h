@@ -27,7 +27,7 @@ struct Options {
   bool emitLLVM = false;
   unsigned optLevel = 0;
   std::optional<std::string> output;
-  std::string targetTriple; // empty: the host
+  std::string targetTriple;              // empty: the host
   std::vector<std::string> sources;      // .jia files we compile
   std::vector<std::string> linkerInputs; // everything else, passed to cc
 };

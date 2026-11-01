@@ -43,17 +43,27 @@ struct Expr;
 enum class UnaryOp : std::uint8_t { Plus, Minus, Not, Deref, AddrOf };
 
 enum class BinaryOp : std::uint8_t {
-  Mul, Div, Rem, Add, Sub,
-  Lt, Gt, Le, Ge, Eq, Ne,
-  LogAnd, LogOr,
+  Mul,
+  Div,
+  Rem,
+  Add,
+  Sub,
+  Lt,
+  Gt,
+  Le,
+  Ge,
+  Eq,
+  Ne,
+  LogAnd,
+  LogOr,
 };
 
 /// How a Cast converts its operand. The parser creates explicit casts as
 /// Unresolved; Sema picks the kind.
 enum class CastKind : std::uint8_t {
   Unresolved,
-  NoOp,           // same representation, e.g. int to int
-  IntegralCast,   // char <-> int
+  NoOp,         // same representation, e.g. int to int
+  IntegralCast, // char <-> int
   IntToFloat,
   FloatToInt,
   ArrayToPointer, // array "decays" to a pointer to its first element
@@ -61,27 +71,54 @@ enum class CastKind : std::uint8_t {
   PointerCast,    // T* to U*
   PointerToInt,
   IntToPointer,
-  ToVoid,         // (void)expr
+  ToVoid, // (void)expr
 };
 
-struct IntLiteral { std::int64_t value; };
-struct FloatLiteral { double value; };
-struct StringLiteral { std::string bytes; }; // decoded, without the NUL
+struct IntLiteral {
+  std::int64_t value;
+};
+struct FloatLiteral {
+  double value;
+};
+struct StringLiteral {
+  std::string bytes;
+}; // decoded, without the NUL
 struct DeclRef {
   std::string name;
   SymbolId symbol = SymbolId::None; // set by Sema
 };
-struct Unary { UnaryOp op; Box<Expr> operand; };
-struct Binary { BinaryOp op; Box<Expr> lhs, rhs; };
-struct Assign { Box<Expr> target, value; };
-struct Call { Box<Expr> callee; std::vector<Expr> args; };
+struct Unary {
+  UnaryOp op;
+  Box<Expr> operand;
+};
+struct Binary {
+  BinaryOp op;
+  Box<Expr> lhs, rhs;
+};
+struct Assign {
+  Box<Expr> target, value;
+};
+struct Call {
+  Box<Expr> callee;
+  std::vector<Expr> args;
+};
 /// a[i]. Sema rewrites it to *(a + i), so later phases never see it.
-struct Index { Box<Expr> base, index; };
+struct Index {
+  Box<Expr> base, index;
+};
 /// The target type is the enclosing Expr's `type`.
-struct Cast { CastKind kind; bool isImplicit; Box<Expr> operand; };
+struct Cast {
+  CastKind kind;
+  bool isImplicit;
+  Box<Expr> operand;
+};
 /// sizeof(type) and sizeof expr. Sema folds both into an IntLiteral.
-struct SizeOfType { const Type *operand; };
-struct SizeOfExpr { Box<Expr> operand; };
+struct SizeOfType {
+  const Type *operand;
+};
+struct SizeOfExpr {
+  Box<Expr> operand;
+};
 
 enum class ValueCategory : std::uint8_t {
   RValue, // a plain value, such as 1 + 2
@@ -89,9 +126,9 @@ enum class ValueCategory : std::uint8_t {
 };
 
 struct Expr {
-  using Node = std::variant<IntLiteral, FloatLiteral, StringLiteral, DeclRef,
-                            Unary, Binary, Assign, Call, Index, Cast,
-                            SizeOfType, SizeOfExpr>;
+  using Node =
+      std::variant<IntLiteral, FloatLiteral, StringLiteral, DeclRef, Unary,
+                   Binary, Assign, Call, Index, Cast, SizeOfType, SizeOfExpr>;
   Node node;
   SourceLocation loc;
   const Type *type = nullptr; // set by Sema (by the parser for casts)
@@ -128,14 +165,29 @@ struct VarDecl {
 struct Stmt;
 
 struct NullStmt {};
-struct ExprStmt { Expr expr; };
-struct DeclStmt { std::vector<VarDecl> vars; };
-struct CompoundStmt { std::vector<Stmt> body; };
-struct IfStmt { Expr cond; Box<Stmt> then; Box<Stmt> otherwise; }; // else may be null
-struct WhileStmt { Expr cond; Box<Stmt> body; };
+struct ExprStmt {
+  Expr expr;
+};
+struct DeclStmt {
+  std::vector<VarDecl> vars;
+};
+struct CompoundStmt {
+  std::vector<Stmt> body;
+};
+struct IfStmt {
+  Expr cond;
+  Box<Stmt> then;
+  Box<Stmt> otherwise;
+}; // else may be null
+struct WhileStmt {
+  Expr cond;
+  Box<Stmt> body;
+};
 struct BreakStmt {};
 struct ContinueStmt {};
-struct ReturnStmt { std::optional<Expr> value; };
+struct ReturnStmt {
+  std::optional<Expr> value;
+};
 
 struct Stmt {
   using Node = std::variant<NullStmt, ExprStmt, DeclStmt, CompoundStmt, IfStmt,
@@ -145,7 +197,7 @@ struct Stmt {
 };
 
 struct ParamDecl {
-  std::string name; // empty in prototypes such as "int f(int);"
+  std::string name;           // empty in prototypes such as "int f(int);"
   const Type *type = nullptr; // already adjusted: arrays become pointers
   bool isConst = false;
   SourceLocation loc;

@@ -65,7 +65,8 @@ int link(const std::vector<std::string> &objects, const Options &opts) {
   argv.push_back(opts.output.value_or("a.out"));
   const std::vector<llvm::StringRef> refs(argv.begin(), argv.end());
   std::string error;
-  const int status = llvm::sys::ExecuteAndWait(*cc, refs, std::nullopt, {}, 0, 0, &error);
+  const int status =
+      llvm::sys::ExecuteAndWait(*cc, refs, std::nullopt, {}, 0, 0, &error);
   if (status != 0) {
     reportError(error.empty() ? "linker command failed" : error);
     return 1;
@@ -113,7 +114,8 @@ private:
   bool compile(const std::string &path) {
     auto buffer = llvm::MemoryBuffer::getFileOrSTDIN(path);
     if (!buffer) {
-      reportError(std::format("cannot open '{}': {}", path, buffer.getError().message()));
+      reportError(std::format("cannot open '{}': {}", path,
+                              buffer.getError().message()));
       return false;
     }
     // The source text must outlive the tokens, which borrow from it.
@@ -154,20 +156,27 @@ private:
   }
 
   /// Where and in what form to write the result for \p path.
-  std::pair<OutputKind, std::optional<std::string>> outputFor(const std::string &path) {
+  std::pair<OutputKind, std::optional<std::string>>
+  outputFor(const std::string &path) {
     switch (opts_.action) {
     case Action::Compile: {
-      const auto kind = opts_.emitLLVM ? OutputKind::Bitcode : OutputKind::Object;
-      return {kind, opts_.output.value_or(replaceExtension(path, opts_.emitLLVM ? "bc" : "o"))};
+      const auto kind =
+          opts_.emitLLVM ? OutputKind::Bitcode : OutputKind::Object;
+      return {kind, opts_.output.value_or(
+                        replaceExtension(path, opts_.emitLLVM ? "bc" : "o"))};
     }
     case Action::Assemble: {
-      const auto kind = opts_.emitLLVM ? OutputKind::LLVMText : OutputKind::Assembly;
-      return {kind, opts_.output.value_or(replaceExtension(path, opts_.emitLLVM ? "ll" : "s"))};
+      const auto kind =
+          opts_.emitLLVM ? OutputKind::LLVMText : OutputKind::Assembly;
+      return {kind, opts_.output.value_or(
+                        replaceExtension(path, opts_.emitLLVM ? "ll" : "s"))};
     }
     default: {
       llvm::SmallString<128> temp;
-      if (const auto ec = llvm::sys::fs::createTemporaryFile("jiac", "o", temp)) {
-        reportError(std::format("cannot create a temporary file: {}", ec.message()));
+      if (const auto ec =
+              llvm::sys::fs::createTemporaryFile("jiac", "o", temp)) {
+        reportError(
+            std::format("cannot create a temporary file: {}", ec.message()));
         return {OutputKind::Object, std::nullopt};
       }
       temporaries_.emplace_back(temp);
@@ -184,8 +193,8 @@ private:
       return false;
     }
     for (const Token &tok : *tokens)
-      llvm::outs() << std::format("{} '{}' {}:{}\n", kindName(tok.kind), tok.text,
-                                  tok.loc.line, tok.loc.column);
+      llvm::outs() << std::format("{} '{}' {}:{}\n", kindName(tok.kind),
+                                  tok.text, tok.loc.line, tok.loc.column);
     return true;
   }
 

@@ -1,7 +1,7 @@
+#include "jia/Parse/Parser.h"
 #include "Suites.h"
 #include "jia/AST/ASTDumper.h"
 #include "jia/Lex/Lexer.h"
-#include "jia/Parse/Parser.h"
 
 namespace jia::test {
 namespace {
@@ -67,35 +67,40 @@ const TestSuite parserSuite{
          }},
         {"array sizes are folded",
          [](Tester &t) {
-           t.expectEq(parsed("int a[2 * 8];"), std::string("  VarDecl a 'int[16]'\n"));
-           t.expectEq(parsed("int a[0];"), std::string("error: array size must be positive"));
+           t.expectEq(parsed("int a[2 * 8];"),
+                      std::string("  VarDecl a 'int[16]'\n"));
+           t.expectEq(parsed("int a[0];"),
+                      std::string("error: array size must be positive"));
          }},
         {"statements",
          [](Tester &t) {
-           t.expectEq(parsed("void f() { while (x) if (y) break; else continue; }"),
-                      std::string("  FunctionDecl f 'void()'\n"
-                                  "    CompoundStmt\n"
-                                  "      WhileStmt\n"
-                                  "        DeclRef x\n"
-                                  "        IfStmt\n"
-                                  "          DeclRef y\n"
-                                  "          BreakStmt\n"
-                                  "          ContinueStmt\n"));
+           t.expectEq(
+               parsed("void f() { while (x) if (y) break; else continue; }"),
+               std::string("  FunctionDecl f 'void()'\n"
+                           "    CompoundStmt\n"
+                           "      WhileStmt\n"
+                           "        DeclRef x\n"
+                           "        IfStmt\n"
+                           "          DeclRef y\n"
+                           "          BreakStmt\n"
+                           "          ContinueStmt\n"));
          }},
         {"casts, sizeof, postfix, and literals",
          [](Tester &t) {
-           t.expectEq(parsed("int x = (int)sizeof(char *) + f(a[1], 'A', \"h\" \"i\");"),
-                      std::string("  VarDecl x 'int'\n"
-                                  "    Binary +\n"
-                                  "      Cast Unresolved 'int'\n"
-                                  "        SizeOfType 'char *'\n"
-                                  "      Call\n"
-                                  "        DeclRef f\n"
-                                  "        Index\n"
-                                  "          DeclRef a\n"
-                                  "          IntLiteral 1\n"
-                                  "        IntLiteral 65\n"
-                                  "        StringLiteral \"hi\"\n"));
+           t.expectEq(
+               parsed(
+                   "int x = (int)sizeof(char *) + f(a[1], 'A', \"h\" \"i\");"),
+               std::string("  VarDecl x 'int'\n"
+                           "    Binary +\n"
+                           "      Cast Unresolved 'int'\n"
+                           "        SizeOfType 'char *'\n"
+                           "      Call\n"
+                           "        DeclRef f\n"
+                           "        Index\n"
+                           "          DeclRef a\n"
+                           "          IntLiteral 1\n"
+                           "        IntLiteral 65\n"
+                           "        StringLiteral \"hi\"\n"));
          }},
         {"initializer lists",
          [](Tester &t) {
@@ -112,11 +117,13 @@ const TestSuite parserSuite{
                       std::string("error: expected expression before ';'"));
            t.expectEq(parsed("void f() { x = 1 }"),
                       std::string("error: expected ';' before '}'"));
-           t.expectEq(parsed("int (*f)(int);"),
-                      std::string("error: function pointers are not supported yet"));
+           t.expectEq(
+               parsed("int (*f)(int);"),
+               std::string("error: function pointers are not supported yet"));
            // Three broken statements, three errors.
-           t.expectEq(errorCount("void f() { 1 +; 2 +; } int g() { return +; }"),
-                      std::size_t{3});
+           t.expectEq(
+               errorCount("void f() { 1 +; 2 +; } int g() { return +; }"),
+               std::size_t{3});
          }},
     }};
 

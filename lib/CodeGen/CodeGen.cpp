@@ -27,7 +27,8 @@ namespace {
 class ModuleBuilder {
 public:
   ModuleBuilder(llvm::LLVMContext &ctx, std::string_view name)
-      : ctx_(ctx), module_(std::make_unique<llvm::Module>(name, ctx)), b_(ctx) {}
+      : ctx_(ctx), module_(std::make_unique<llvm::Module>(name, ctx)), b_(ctx) {
+  }
 
   Result<std::unique_ptr<llvm::Module>> run(const TranslationUnit &tu) {
     for (const TopLevelDecl &decl : tu.decls)
@@ -48,14 +49,20 @@ private:
 
   llvm::Type *lower(const Type *type) {
     switch (type->kind()) {
-    case TypeKind::Void: return b_.getVoidTy();
-    case TypeKind::Char: return b_.getInt8Ty();
-    case TypeKind::Int: return b_.getInt32Ty();
-    case TypeKind::Float: return b_.getFloatTy();
-    case TypeKind::Pointer: return b_.getPtrTy();
+    case TypeKind::Void:
+      return b_.getVoidTy();
+    case TypeKind::Char:
+      return b_.getInt8Ty();
+    case TypeKind::Int:
+      return b_.getInt32Ty();
+    case TypeKind::Float:
+      return b_.getFloatTy();
+    case TypeKind::Pointer:
+      return b_.getPtrTy();
     case TypeKind::Array:
       return llvm::ArrayType::get(lower(type->element()), type->length());
-    case TypeKind::Function: return lowerFunction(type);
+    case TypeKind::Function:
+      return lowerFunction(type);
     }
     return nullptr;
   }
@@ -145,71 +152,72 @@ private:
   void startDeadBlock() { startBlock(block("dead")); }
 
   void emit(const Stmt &stmt) {
-    std::visit(
-        Overloaded{
-            [](const NullStmt &) {},
-            [&](const ExprStmt &s) { rvalue(s.expr); },
-            [&](const DeclStmt &s) {
-              for (const VarDecl &var : s.vars) {
-                llvm::AllocaInst *slot = stackSlot(var.type, var.name);
-                values_[var.symbol] = slot;
-                if (var.init)
-                  localInit(slot, var.type, *var.init);
-              }
-            },
-            [&](const CompoundStmt &s) {
-              for (const Stmt &inner : s.body)
-                emit(inner);
-            },
-            [&](const IfStmt &s) {
-              llvm::BasicBlock *thenBB = block("if.then");
-              llvm::BasicBlock *elseBB = s.otherwise ? block("if.else") : nullptr;
-              llvm::BasicBlock *endBB = block("if.end");
-              b_.CreateCondBr(condition(s.cond), thenBB, elseBB ? elseBB : endBB);
-              startBlock(thenBB);
-              emit(*s.then);
-              branchTo(endBB);
-              if (elseBB) {
-                startBlock(elseBB);
-                emit(*s.otherwise);
-                branchTo(endBB);
-              }
-              startBlock(endBB);
-            },
-            [&](const WhileStmt &s) {
-              llvm::BasicBlock *condBB = block("while.cond");
-              llvm::BasicBlock *bodyBB = block("while.body");
-              llvm::BasicBlock *endBB = block("while.end");
-              b_.CreateBr(condBB);
-              startBlock(condBB);
-              b_.CreateCondBr(condition(s.cond), bodyBB, endBB);
-              startBlock(bodyBB);
-              loops_.push_back({.continueTo = condBB, .breakTo = endBB});
-              emit(*s.body);
-              loops_.pop_back();
-              branchTo(condBB);
-              startBlock(endBB);
-            },
-            [&](const BreakStmt &) {
-              b_.CreateBr(loops_.back().breakTo);
-              startDeadBlock();
-            },
-            [&](const ContinueStmt &) {
-              b_.CreateBr(loops_.back().continueTo);
-              startDeadBlock();
-            },
-            [&](const ReturnStmt &s) {
-              if (s.value && !s.value->type->isVoid())
-                b_.CreateRet(rvalue(*s.value));
-              else {
-                if (s.value)
-                  rvalue(*s.value); // "return f();" where f returns void
-                b_.CreateRetVoid();
-              }
-              startDeadBlock();
-            },
-        },
-        stmt.node);
+    std::visit(Overloaded{
+                   [](const NullStmt &) {},
+                   [&](const ExprStmt &s) { rvalue(s.expr); },
+                   [&](const DeclStmt &s) {
+                     for (const VarDecl &var : s.vars) {
+                       llvm::AllocaInst *slot = stackSlot(var.type, var.name);
+                       values_[var.symbol] = slot;
+                       if (var.init)
+                         localInit(slot, var.type, *var.init);
+                     }
+                   },
+                   [&](const CompoundStmt &s) {
+                     for (const Stmt &inner : s.body)
+                       emit(inner);
+                   },
+                   [&](const IfStmt &s) {
+                     llvm::BasicBlock *thenBB = block("if.then");
+                     llvm::BasicBlock *elseBB =
+                         s.otherwise ? block("if.else") : nullptr;
+                     llvm::BasicBlock *endBB = block("if.end");
+                     b_.CreateCondBr(condition(s.cond), thenBB,
+                                     elseBB ? elseBB : endBB);
+                     startBlock(thenBB);
+                     emit(*s.then);
+                     branchTo(endBB);
+                     if (elseBB) {
+                       startBlock(elseBB);
+                       emit(*s.otherwise);
+                       branchTo(endBB);
+                     }
+                     startBlock(endBB);
+                   },
+                   [&](const WhileStmt &s) {
+                     llvm::BasicBlock *condBB = block("while.cond");
+                     llvm::BasicBlock *bodyBB = block("while.body");
+                     llvm::BasicBlock *endBB = block("while.end");
+                     b_.CreateBr(condBB);
+                     startBlock(condBB);
+                     b_.CreateCondBr(condition(s.cond), bodyBB, endBB);
+                     startBlock(bodyBB);
+                     loops_.push_back({.continueTo = condBB, .breakTo = endBB});
+                     emit(*s.body);
+                     loops_.pop_back();
+                     branchTo(condBB);
+                     startBlock(endBB);
+                   },
+                   [&](const BreakStmt &) {
+                     b_.CreateBr(loops_.back().breakTo);
+                     startDeadBlock();
+                   },
+                   [&](const ContinueStmt &) {
+                     b_.CreateBr(loops_.back().continueTo);
+                     startDeadBlock();
+                   },
+                   [&](const ReturnStmt &s) {
+                     if (s.value && !s.value->type->isVoid())
+                       b_.CreateRet(rvalue(*s.value));
+                     else {
+                       if (s.value)
+                         rvalue(*s.value); // "return f();" where f returns void
+                       b_.CreateRetVoid();
+                     }
+                     startDeadBlock();
+                   },
+               },
+               stmt.node);
   }
 
   //===--- Initializers ----------------------------------------------===//
@@ -251,9 +259,10 @@ private:
         return charArray(type, expr->as<StringLiteral>()->bytes);
       std::vector<llvm::Constant *> elements;
       for (std::uint64_t i = 0; i < type->length(); ++i)
-        elements.push_back(i < list->size()
-                               ? constantInit(type->element(), (*list)[i])
-                               : llvm::Constant::getNullValue(lower(type->element())));
+        elements.push_back(
+            i < list->size()
+                ? constantInit(type->element(), (*list)[i])
+                : llvm::Constant::getNullValue(lower(type->element())));
       return llvm::ConstantArray::get(llvm::cast<llvm::ArrayType>(lower(type)),
                                       elements);
     }
@@ -267,20 +276,21 @@ private:
   llvm::Constant *constant(const Expr &e) {
     if (const auto value = evaluateConstant(e)) {
       llvm::Type *type = lower(e.type);
-      return std::visit(
-          Overloaded{
-              [&](std::int64_t i) -> llvm::Constant * {
-                if (type->isFloatTy())
-                  return llvm::ConstantFP::get(type, static_cast<double>(i));
-                return llvm::ConstantInt::getSigned(type, i);
-              },
-              [&](double d) -> llvm::Constant * {
-                if (type->isFloatTy())
-                  return llvm::ConstantFP::get(type, d);
-                return llvm::ConstantInt::getSigned(type, static_cast<std::int64_t>(d));
-              },
-          },
-          *value);
+      return std::visit(Overloaded{
+                            [&](std::int64_t i) -> llvm::Constant * {
+                              if (type->isFloatTy())
+                                return llvm::ConstantFP::get(
+                                    type, static_cast<double>(i));
+                              return llvm::ConstantInt::getSigned(type, i);
+                            },
+                            [&](double d) -> llvm::Constant * {
+                              if (type->isFloatTy())
+                                return llvm::ConstantFP::get(type, d);
+                              return llvm::ConstantInt::getSigned(
+                                  type, static_cast<std::int64_t>(d));
+                            },
+                        },
+                        *value);
     }
     if (const auto *cast = e.as<Cast>()) {
       if (cast->kind == CastKind::NullToPointer)
@@ -290,7 +300,8 @@ private:
       if (cast->kind == CastKind::ArrayToPointer)
         return llvm::cast<llvm::Constant>(lvalue(*cast->operand));
     }
-    if (const auto *unary = e.as<Unary>(); unary && unary->op == UnaryOp::AddrOf)
+    if (const auto *unary = e.as<Unary>();
+        unary && unary->op == UnaryOp::AddrOf)
       return llvm::cast<llvm::Constant>(lvalue(*unary->operand));
     assert(false && "Sema accepted a non-constant initializer");
     return nullptr;
@@ -301,7 +312,8 @@ private:
   llvm::GlobalVariable *stringLiteral(const std::string &bytes) {
     auto [it, inserted] = strings_.try_emplace(bytes, nullptr);
     if (inserted) {
-      auto *data = llvm::ConstantDataArray::getString(ctx_, bytes, /*AddNull=*/true);
+      auto *data =
+          llvm::ConstantDataArray::getString(ctx_, bytes, /*AddNull=*/true);
       it->second = new llvm::GlobalVariable(*module_, data->getType(), true,
                                             llvm::GlobalValue::PrivateLinkage,
                                             data, ".str");
@@ -336,7 +348,9 @@ private:
     return b_.CreateIsNotNull(v);
   }
 
-  llvm::Value *toInt(llvm::Value *flag) { return b_.CreateZExt(flag, b_.getInt32Ty()); }
+  llvm::Value *toInt(llvm::Value *flag) {
+    return b_.CreateZExt(flag, b_.getInt32Ty());
+  }
 
   llvm::Value *rvalue(const Expr &e) {
     return std::visit(
@@ -418,7 +432,8 @@ private:
 
     if (operandType->isPointer()) {
       llvm::Type *element = lower(operandType->pointee());
-      if (bin.op == BinaryOp::Add || (bin.op == BinaryOp::Sub && !bin.rhs->type->isPointer())) {
+      if (bin.op == BinaryOp::Add ||
+          (bin.op == BinaryOp::Sub && !bin.rhs->type->isPointer())) {
         llvm::Value *offset = b_.CreateSExt(r, b_.getInt64Ty());
         if (bin.op == BinaryOp::Sub)
           offset = b_.CreateNeg(offset);
@@ -429,12 +444,18 @@ private:
     }
 
     switch (bin.op) {
-    case BinaryOp::Add: return isFloat ? b_.CreateFAdd(l, r) : b_.CreateAdd(l, r);
-    case BinaryOp::Sub: return isFloat ? b_.CreateFSub(l, r) : b_.CreateSub(l, r);
-    case BinaryOp::Mul: return isFloat ? b_.CreateFMul(l, r) : b_.CreateMul(l, r);
-    case BinaryOp::Div: return isFloat ? b_.CreateFDiv(l, r) : b_.CreateSDiv(l, r);
-    case BinaryOp::Rem: return b_.CreateSRem(l, r);
-    default: break;
+    case BinaryOp::Add:
+      return isFloat ? b_.CreateFAdd(l, r) : b_.CreateAdd(l, r);
+    case BinaryOp::Sub:
+      return isFloat ? b_.CreateFSub(l, r) : b_.CreateSub(l, r);
+    case BinaryOp::Mul:
+      return isFloat ? b_.CreateFMul(l, r) : b_.CreateMul(l, r);
+    case BinaryOp::Div:
+      return isFloat ? b_.CreateFDiv(l, r) : b_.CreateSDiv(l, r);
+    case BinaryOp::Rem:
+      return b_.CreateSRem(l, r);
+    default:
+      break;
     }
 
     // Comparisons yield an int, 0 or 1, as in C.
@@ -442,13 +463,26 @@ private:
     const bool isPtr = operandType->isPointer();
     P pred = P::ICMP_EQ;
     switch (bin.op) {
-    case BinaryOp::Lt: pred = isFloat ? P::FCMP_OLT : isPtr ? P::ICMP_ULT : P::ICMP_SLT; break;
-    case BinaryOp::Gt: pred = isFloat ? P::FCMP_OGT : isPtr ? P::ICMP_UGT : P::ICMP_SGT; break;
-    case BinaryOp::Le: pred = isFloat ? P::FCMP_OLE : isPtr ? P::ICMP_ULE : P::ICMP_SLE; break;
-    case BinaryOp::Ge: pred = isFloat ? P::FCMP_OGE : isPtr ? P::ICMP_UGE : P::ICMP_SGE; break;
-    case BinaryOp::Eq: pred = isFloat ? P::FCMP_OEQ : P::ICMP_EQ; break;
-    case BinaryOp::Ne: pred = isFloat ? P::FCMP_UNE : P::ICMP_NE; break; // NaN != NaN
-    default: break;
+    case BinaryOp::Lt:
+      pred = isFloat ? P::FCMP_OLT : isPtr ? P::ICMP_ULT : P::ICMP_SLT;
+      break;
+    case BinaryOp::Gt:
+      pred = isFloat ? P::FCMP_OGT : isPtr ? P::ICMP_UGT : P::ICMP_SGT;
+      break;
+    case BinaryOp::Le:
+      pred = isFloat ? P::FCMP_OLE : isPtr ? P::ICMP_ULE : P::ICMP_SLE;
+      break;
+    case BinaryOp::Ge:
+      pred = isFloat ? P::FCMP_OGE : isPtr ? P::ICMP_UGE : P::ICMP_SGE;
+      break;
+    case BinaryOp::Eq:
+      pred = isFloat ? P::FCMP_OEQ : P::ICMP_EQ;
+      break;
+    case BinaryOp::Ne:
+      pred = isFloat ? P::FCMP_UNE : P::ICMP_NE;
+      break; // NaN != NaN
+    default:
+      break;
     }
     return toInt(b_.CreateCmp(pred, l, r));
   }
@@ -505,7 +539,8 @@ private:
   std::unique_ptr<llvm::Module> module_;
   llvm::IRBuilder<> b_;
   llvm::Function *fn_ = nullptr;
-  std::map<SymbolId, llvm::Value *> values_; // address of each variable, or the function
+  std::map<SymbolId, llvm::Value *>
+      values_; // address of each variable, or the function
   std::map<std::string, llvm::GlobalVariable *> strings_;
   std::vector<Loop> loops_;
 };

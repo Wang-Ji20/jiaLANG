@@ -20,19 +20,27 @@ namespace {
 
 llvm::OptimizationLevel passLevel(unsigned level) {
   switch (level) {
-  case 0: return llvm::OptimizationLevel::O0;
-  case 1: return llvm::OptimizationLevel::O1;
-  case 2: return llvm::OptimizationLevel::O2;
-  default: return llvm::OptimizationLevel::O3;
+  case 0:
+    return llvm::OptimizationLevel::O0;
+  case 1:
+    return llvm::OptimizationLevel::O1;
+  case 2:
+    return llvm::OptimizationLevel::O2;
+  default:
+    return llvm::OptimizationLevel::O3;
   }
 }
 
 llvm::CodeGenOptLevel codegenLevel(unsigned level) {
   switch (level) {
-  case 0: return llvm::CodeGenOptLevel::None;
-  case 1: return llvm::CodeGenOptLevel::Less;
-  case 2: return llvm::CodeGenOptLevel::Default;
-  default: return llvm::CodeGenOptLevel::Aggressive;
+  case 0:
+    return llvm::CodeGenOptLevel::None;
+  case 1:
+    return llvm::CodeGenOptLevel::Less;
+  case 2:
+    return llvm::CodeGenOptLevel::Default;
+  default:
+    return llvm::CodeGenOptLevel::Aggressive;
   }
 }
 
@@ -48,10 +56,11 @@ void initializeTargets() {
 
 std::expected<std::unique_ptr<llvm::TargetMachine>, std::string>
 createTargetMachine(const std::string &tripleName, unsigned optLevel) {
-  const llvm::Triple triple(tripleName.empty() ? llvm::sys::getDefaultTargetTriple()
-                                               : tripleName);
+  const llvm::Triple triple(
+      tripleName.empty() ? llvm::sys::getDefaultTargetTriple() : tripleName);
   std::string error;
-  const llvm::Target *target = llvm::TargetRegistry::lookupTarget(triple, error);
+  const llvm::Target *target =
+      llvm::TargetRegistry::lookupTarget(triple, error);
   if (!target)
     return std::unexpected(error);
   // Position-independent code, so objects link into the PIE executables
@@ -60,8 +69,8 @@ createTargetMachine(const std::string &tripleName, unsigned optLevel) {
       triple, "generic", "", llvm::TargetOptions(), llvm::Reloc::PIC_,
       std::nullopt, codegenLevel(optLevel)));
   if (!machine)
-    return std::unexpected(std::format("cannot create a target machine for '{}'",
-                                       triple.str()));
+    return std::unexpected(
+        std::format("cannot create a target machine for '{}'", triple.str()));
   return machine;
 }
 
@@ -83,21 +92,25 @@ void optimize(llvm::Module &module, llvm::TargetMachine &machine,
   builder.registerLoopAnalyses(lam);
   builder.crossRegisterProxies(lam, fam, cgam, mam);
   llvm::ModulePassManager passes =
-      optLevel == 0 ? builder.buildO0DefaultPipeline(llvm::OptimizationLevel::O0)
-                    : builder.buildPerModuleDefaultPipeline(passLevel(optLevel));
+      optLevel == 0
+          ? builder.buildO0DefaultPipeline(llvm::OptimizationLevel::O0)
+          : builder.buildPerModuleDefaultPipeline(passLevel(optLevel));
   passes.run(module, mam);
 }
 
 std::expected<void, std::string> emit(llvm::Module &module,
                                       llvm::TargetMachine &machine,
-                                      OutputKind kind, const std::string &path) {
+                                      OutputKind kind,
+                                      const std::string &path) {
   std::error_code ec;
-  const auto flags = kind == OutputKind::LLVMText || kind == OutputKind::Assembly
-                         ? llvm::sys::fs::OF_Text
-                         : llvm::sys::fs::OF_None;
+  const auto flags =
+      kind == OutputKind::LLVMText || kind == OutputKind::Assembly
+          ? llvm::sys::fs::OF_Text
+          : llvm::sys::fs::OF_None;
   llvm::raw_fd_ostream out(path, ec, flags);
   if (ec)
-    return std::unexpected(std::format("cannot open '{}': {}", path, ec.message()));
+    return std::unexpected(
+        std::format("cannot open '{}': {}", path, ec.message()));
 
   switch (kind) {
   case OutputKind::LLVMText:

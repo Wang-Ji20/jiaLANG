@@ -55,8 +55,9 @@ std::string spell(const Type &type, const std::string &inner) {
   }
   case TypeKind::Array:
     return spell(*type.element(),
-                 type.length() == 0 ? inner + "[]"
-                                    : std::format("{}[{}]", inner, type.length()));
+                 type.length() == 0
+                     ? inner + "[]"
+                     : std::format("{}[{}]", inner, type.length()));
   case TypeKind::Function: {
     std::string params;
     for (const Type *param : type.params()) {
@@ -90,7 +91,8 @@ const Type *TypeContext::own(std::unique_ptr<Type> type) {
 const Type *TypeContext::pointerTo(const Type *pointee) {
   auto [it, inserted] = pointers_.try_emplace(pointee, nullptr);
   if (inserted)
-    it->second = own(std::make_unique<Type>(Type::Key{}, TypeKind::Pointer, pointee));
+    it->second =
+        own(std::make_unique<Type>(Type::Key{}, TypeKind::Pointer, pointee));
   return it->second;
 }
 
@@ -105,10 +107,11 @@ const Type *TypeContext::arrayOf(const Type *element, std::uint64_t length) {
 const Type *TypeContext::function(const Type *ret,
                                   std::vector<const Type *> params,
                                   bool variadic) {
-  auto [it, inserted] = functions_.try_emplace({ret, params, variadic}, nullptr);
+  auto [it, inserted] =
+      functions_.try_emplace({ret, params, variadic}, nullptr);
   if (inserted)
-    it->second = own(std::make_unique<Type>(Type::Key{}, TypeKind::Function, ret,
-                                            0, std::move(params), variadic));
+    it->second = own(std::make_unique<Type>(
+        Type::Key{}, TypeKind::Function, ret, 0, std::move(params), variadic));
   return it->second;
 }
 

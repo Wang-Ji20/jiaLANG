@@ -19,8 +19,10 @@ const TestSuite astSuite{
         {"types are uniqued",
          [](Tester &t) {
            TypeContext ctx;
-           t.expect(ctx.pointerTo(ctx.intType()) == ctx.pointerTo(ctx.intType()));
-           t.expect(ctx.arrayOf(ctx.charType(), 3) != ctx.arrayOf(ctx.charType(), 4));
+           t.expect(ctx.pointerTo(ctx.intType()) ==
+                    ctx.pointerTo(ctx.intType()));
+           t.expect(ctx.arrayOf(ctx.charType(), 3) !=
+                    ctx.arrayOf(ctx.charType(), 4));
            t.expect(ctx.function(ctx.intType(), {ctx.intType()}, false) ==
                     ctx.function(ctx.intType(), {ctx.intType()}, false));
          }},
@@ -41,14 +43,15 @@ const TestSuite astSuite{
         {"type sizes",
          [](Tester &t) {
            TypeContext ctx;
-           t.expectEq(*ctx.arrayOf(ctx.intType(), 10)->size(), std::uint64_t{40});
+           t.expectEq(*ctx.arrayOf(ctx.intType(), 10)->size(),
+                      std::uint64_t{40});
            t.expectEq(*ctx.pointerTo(ctx.voidType())->size(), std::uint64_t{8});
            t.expect(!ctx.voidType()->size().has_value());
          }},
         {"folds integer arithmetic",
          [](Tester &t) {
-           const Expr e = bin(BinaryOp::Mul, bin(BinaryOp::Add, lit(2), lit(3)),
-                              lit(4));
+           const Expr e =
+               bin(BinaryOp::Mul, bin(BinaryOp::Add, lit(2), lit(3)), lit(4));
            t.expectEq(*evaluateInteger(e), std::int64_t{20});
            t.expect(!evaluateInteger(bin(BinaryOp::Div, lit(1), lit(0))));
            t.expectEq(*evaluateInteger(bin(BinaryOp::LogOr, lit(0), lit(7))),

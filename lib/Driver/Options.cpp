@@ -76,7 +76,8 @@ parseArguments(std::span<const std::string_view> args) {
   const bool stopsEarly =
       opts.action == Action::Compile || opts.action == Action::Assemble;
   if (stopsEarly && opts.output && opts.sources.size() > 1)
-    return std::unexpected("cannot specify '-o' with '-c' or '-S' and multiple files");
+    return std::unexpected(
+        "cannot specify '-o' with '-c' or '-S' and multiple files");
   return opts;
 }
 

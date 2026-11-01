@@ -2,8 +2,8 @@
 #include "jia/Lex/Lexer.h"
 
 #include <array>
-#include <optional>
 #include <format>
+#include <optional>
 #include <utility>
 
 namespace jia {
@@ -27,12 +27,14 @@ std::string_view kindName(TokenKind kind) {
 namespace {
 
 constexpr std::array keywords = {
-#define KEYWORD(Name, Spelling) std::pair{std::string_view(Spelling), TokenKind::Name},
+#define KEYWORD(Name, Spelling)                                                \
+  std::pair{std::string_view(Spelling), TokenKind::Name},
 #include "jia/Lex/TokenKinds.def"
 };
 
 constexpr std::array punctuators = {
-#define PUNCT(Name, Spelling) std::pair{std::string_view(Spelling), TokenKind::Name},
+#define PUNCT(Name, Spelling)                                                  \
+  std::pair{std::string_view(Spelling), TokenKind::Name},
 #include "jia/Lex/TokenKinds.def"
 };
 

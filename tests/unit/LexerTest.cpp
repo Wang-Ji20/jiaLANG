@@ -1,5 +1,5 @@
-#include "Suites.h"
 #include "jia/Lex/Lexer.h"
+#include "Suites.h"
 #include "jia/Lex/Literal.h"
 
 namespace jia::test {
@@ -48,8 +48,9 @@ const TestSuite lexerSuite{
          }},
         {"comments are skipped",
          [](Tester &t) {
-           t.expectEq(summarize("a /* x\n y */ b // c\n d"),
-                      std::string("Identifier:a Identifier:b Identifier:d Eof"));
+           t.expectEq(
+               summarize("a /* x\n y */ b // c\n d"),
+               std::string("Identifier:a Identifier:b Identifier:d Eof"));
          }},
         {"locations track lines and columns",
          [](Tester &t) {

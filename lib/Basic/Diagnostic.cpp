@@ -28,7 +28,8 @@ std::string_view lineText(std::string_view source, std::uint32_t line) {
     ++begin;
   }
   const std::size_t end = source.find('\n', begin);
-  return source.substr(begin, end == std::string_view::npos ? end : end - begin);
+  return source.substr(begin,
+                       end == std::string_view::npos ? end : end - begin);
 }
 
 } // namespace

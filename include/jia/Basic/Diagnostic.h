@@ -34,7 +34,8 @@ template <class T> using Result = std::expected<T, Diagnostics>;
 
 [[nodiscard]] inline Diagnostic makeError(SourceLocation loc,
                                           std::string message) {
-  return {.severity = Severity::Error, .loc = loc, .message = std::move(message)};
+  return {
+      .severity = Severity::Error, .loc = loc, .message = std::move(message)};
 }
 
 /// A failed Result holding a single error.

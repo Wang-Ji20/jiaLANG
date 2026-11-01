@@ -68,7 +68,8 @@ std::string trim(std::string_view s) {
   return std::string(s.substr(begin, end - begin + 1));
 }
 
-std::string replaceAll(std::string s, std::string_view from, std::string_view to) {
+std::string replaceAll(std::string s, std::string_view from,
+                       std::string_view to) {
   for (std::size_t pos = 0; (pos = s.find(from, pos)) != std::string::npos;
        pos += to.size())
     s.replace(pos, from.size(), to);
@@ -85,7 +86,8 @@ TestSpec readSpec(const fs::path &file) {
     if (slash == std::string::npos)
       continue;
     const std::string comment = trim(std::string_view(line).substr(slash + 2));
-    const auto directive = [&](std::string_view name) -> std::optional<std::string> {
+    const auto directive =
+        [&](std::string_view name) -> std::optional<std::string> {
       if (!comment.starts_with(name))
         return std::nullopt;
       return trim(std::string_view(comment).substr(name.size()));
@@ -127,16 +129,18 @@ std::optional<std::string> match(const std::vector<Check> &checks,
   for (std::string line; std::getline(stream, line);)
     lines.push_back(line);
 
-  std::size_t next = 0;          // first line not yet consumed
+  std::size_t next = 0;            // first line not yet consumed
   std::optional<std::size_t> last; // line of the previous positive match
   std::vector<const Check *> pendingNots;
 
-  const auto checkNots = [&](std::size_t from, std::size_t to) -> std::optional<std::string> {
+  const auto checkNots = [&](std::size_t from,
+                             std::size_t to) -> std::optional<std::string> {
     for (const Check *no : pendingNots)
       for (std::size_t i = from; i < to && i < lines.size(); ++i)
         if (lines[i].find(no->text) != std::string::npos)
-          return std::format("line {}: CHECK-NOT: found '{}' in output line {}:\n  {}",
-                             no->line, no->text, i + 1, lines[i]);
+          return std::format(
+              "line {}: CHECK-NOT: found '{}' in output line {}:\n  {}",
+              no->line, no->text, i + 1, lines[i]);
     pendingNots.clear();
     return std::nullopt;
   };
@@ -149,19 +153,21 @@ std::optional<std::string> match(const std::vector<Check> &checks,
     std::optional<std::size_t> found;
     if (check.kind == CheckKind::Next) {
       const std::size_t want = last ? *last + 1 : 0;
-      if (want < lines.size() && lines[want].find(check.text) != std::string::npos)
+      if (want < lines.size() &&
+          lines[want].find(check.text) != std::string::npos)
         found = want;
       else
-        return std::format("line {}: CHECK-NEXT: expected '{}' on output line {}, got:\n  {}",
-                           check.line, check.text, want + 1,
-                           want < lines.size() ? lines[want] : "<end of output>");
+        return std::format(
+            "line {}: CHECK-NEXT: expected '{}' on output line {}, got:\n  {}",
+            check.line, check.text, want + 1,
+            want < lines.size() ? lines[want] : "<end of output>");
     } else {
       for (std::size_t i = next; i < lines.size() && !found; ++i)
         if (lines[i].find(check.text) != std::string::npos)
           found = i;
       if (!found)
-        return std::format("line {}: CHECK: '{}' not found in output", check.line,
-                           check.text);
+        return std::format("line {}: CHECK: '{}' not found in output",
+                           check.line, check.text);
     }
     if (auto err = checkNots(next, *found))
       return err;
@@ -173,7 +179,8 @@ std::optional<std::string> match(const std::vector<Check> &checks,
 
 bool runTest(const Config &config, const fs::path &file, std::size_t index) {
   const TestSpec spec = readSpec(file);
-  const fs::path scratch = config.outDir / std::format("t{}-{}", index, file.stem().string());
+  const fs::path scratch =
+      config.outDir / std::format("t{}-{}", index, file.stem().string());
   std::string output;
   std::optional<std::string> failure;
   if (spec.runs.empty())
@@ -189,9 +196,9 @@ bool runTest(const Config &config, const fs::path &file, std::size_t index) {
     const auto [status, out] = shell(cmd);
     output += out;
     if ((status == 0) == run.expectFailure) {
-      failure = std::format("command {} (exit {}):\n  {}",
-                            run.expectFailure ? "unexpectedly succeeded" : "failed",
-                            status, cmd);
+      failure = std::format(
+          "command {} (exit {}):\n  {}",
+          run.expectFailure ? "unexpectedly succeeded" : "failed", status, cmd);
       break;
     }
   }
@@ -217,11 +224,20 @@ std::optional<Config> parseArgs(int argc, char **argv) {
       return std::string(argv[++i]);
     };
     if (arg == "--jiac") {
-      if (auto v = value()) config.jiac = *v; else return std::nullopt;
+      if (auto v = value())
+        config.jiac = *v;
+      else
+        return std::nullopt;
     } else if (arg == "--cc") {
-      if (auto v = value()) config.cc = *v; else return std::nullopt;
+      if (auto v = value())
+        config.cc = *v;
+      else
+        return std::nullopt;
     } else if (arg == "--out") {
-      if (auto v = value()) config.outDir = *v; else return std::nullopt;
+      if (auto v = value())
+        config.outDir = *v;
+      else
+        return std::nullopt;
     } else if (arg == "-v") {
       config.verbose = true;
     } else {
@@ -238,8 +254,8 @@ std::optional<Config> parseArgs(int argc, char **argv) {
 int main(int argc, char **argv) {
   const auto config = parseArgs(argc, argv);
   if (!config) {
-    std::fprintf(stderr,
-                 "usage: jia-lit --jiac <path> [--cc <cc>] [--out <dir>] [-v] <file|dir>...\n");
+    std::fprintf(stderr, "usage: jia-lit --jiac <path> [--cc <cc>] [--out "
+                         "<dir>] [-v] <file|dir>...\n");
     return 2;
   }
 

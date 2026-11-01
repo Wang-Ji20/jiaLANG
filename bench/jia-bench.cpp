@@ -56,14 +56,16 @@ std::vector<Compiler> compilers(const Config &config) {
     list.push_back({std::format("jiac {}", level),
                     std::format("{} {} {{in}} -o {{out}}", config.jiac, level),
                     std::format("{} -fsyntax-only {{in}}", config.jiac)});
-    list.push_back({std::format("cc {}", level),
-                    std::format("{} -w -x c {} {{in}} -o {{out}}", config.cc, level),
-                    std::format("{} -w -x c -fsyntax-only {{in}}", config.cc)});
+    list.push_back(
+        {std::format("cc {}", level),
+         std::format("{} -w -x c {} {{in}} -o {{out}}", config.cc, level),
+         std::format("{} -w -x c -fsyntax-only {{in}}", config.cc)});
   }
   return list;
 }
 
-std::string substitute(std::string pattern, const std::string &in, const std::string &out) {
+std::string substitute(std::string pattern, const std::string &in,
+                       const std::string &out) {
   const auto put = [&](std::string_view key, const std::string &value) {
     for (std::size_t pos; (pos = pattern.find(key)) != std::string::npos;)
       pattern.replace(pos, key.size(), value);
@@ -114,17 +116,16 @@ fs::path writeSynthetic(const fs::path &dir, int functions) {
   std::ofstream out(path);
   out << "int printf(char *fmt, ...);\n";
   for (int i = 0; i < functions; ++i) {
-    out << std::format(
-        "int f{0}(int n, int *a) {{\n"
-        "  int s = {0}, i = 0;\n"
-        "  while (i < n) {{\n"
-        "    if (a[i] % 3 == 0 && i > 2) s = s + a[i] * 2;\n"
-        "    else s = s - (a[i] + {0}) / 7;\n"
-        "    i = i + 1;\n"
-        "  }}\n"
-        "  return s;\n"
-        "}}\n",
-        i);
+    out << std::format("int f{0}(int n, int *a) {{\n"
+                       "  int s = {0}, i = 0;\n"
+                       "  while (i < n) {{\n"
+                       "    if (a[i] % 3 == 0 && i > 2) s = s + a[i] * 2;\n"
+                       "    else s = s - (a[i] + {0}) / 7;\n"
+                       "    i = i + 1;\n"
+                       "  }}\n"
+                       "  return s;\n"
+                       "}}\n",
+                       i);
   }
   out << "int main() { int a[4] = {1, 2, 3, 4}; int s = 0;\n";
   for (int i = 0; i < functions; ++i)
@@ -165,18 +166,20 @@ std::optional<Config> parseArgs(int argc, char **argv) {
 int main(int argc, char **argv) {
   const auto config = parseArgs(argc, argv);
   if (!config) {
-    std::fprintf(stderr, "usage: jia-bench --jiac <path> [--cc <cc>] [--runs N] "
-                         "[--out DIR] [--report FILE] [--no-throughput] <program.jia>...\n");
+    std::fprintf(
+        stderr,
+        "usage: jia-bench --jiac <path> [--cc <cc>] [--runs N] "
+        "[--out DIR] [--report FILE] [--no-throughput] <program.jia>...\n");
     return 2;
   }
   fs::create_directories(config->outDir);
   const std::vector<Compiler> list = compilers(*config);
   bool ok = true;
 
-  std::string report = std::format(
-      "# Benchmark report\n\nMedian of {} runs, in milliseconds. "
-      "Compile = build the executable; run = execute it.\n\n",
-      config->runs);
+  std::string report =
+      std::format("# Benchmark report\n\nMedian of {} runs, in milliseconds. "
+                  "Compile = build the executable; run = execute it.\n\n",
+                  config->runs);
   report += "| Program |";
   for (const Compiler &c : list)
     report += std::format(" {} compile | {} run |", c.name, c.name);
@@ -193,12 +196,15 @@ int main(int argc, char **argv) {
     bool same = true;
     for (std::size_t i = 0; i < list.size(); ++i) {
       const fs::path exe = config->outDir / std::format("{}-{}", name, i);
-      const fs::path output = config->outDir / std::format("{}-{}.out", name, i);
+      const fs::path output =
+          config->outDir / std::format("{}-{}.out", name, i);
       const auto compile =
-          median(substitute(list[i].build, program.string(), exe.string()), config->runs);
+          median(substitute(list[i].build, program.string(), exe.string()),
+                 config->runs);
       std::optional<double> run;
       if (compile) {
-        run = median(std::format("{} > {}", exe.string(), output.string()), config->runs);
+        run = median(std::format("{} > {}", exe.string(), output.string()),
+                     config->runs);
         const std::string printed = readFile(output);
         if (!reference)
           reference = printed;
@@ -216,17 +222,20 @@ int main(int argc, char **argv) {
     const fs::path synthetic = writeSynthetic(config->outDir, functions);
     const std::string text = readFile(synthetic);
     const auto lines = std::count(text.begin(), text.end(), '\n');
-    report += std::format("\n## Compile throughput\n\nA generated file of {} functions "
-                          "({} lines).\n\n| Compiler | Front end only | Full build |\n"
-                          "|---|---:|---:|\n",
-                          functions, lines);
+    report += std::format(
+        "\n## Compile throughput\n\nA generated file of {} functions "
+        "({} lines).\n\n| Compiler | Front end only | Full build |\n"
+        "|---|---:|---:|\n",
+        functions, lines);
     std::fprintf(stderr, "measuring throughput...\n");
     for (const Compiler &c : list) {
       if (c.name.ends_with("-O2"))
         continue; // front-end time does not depend on the level
       const fs::path exe = config->outDir / "synthetic";
-      const auto check = median(substitute(c.check, synthetic.string(), ""), config->runs);
-      const auto build = median(substitute(c.build, synthetic.string(), exe.string()), config->runs);
+      const auto check =
+          median(substitute(c.check, synthetic.string(), ""), config->runs);
+      const auto build = median(
+          substitute(c.build, synthetic.string(), exe.string()), config->runs);
       ok &= check && build;
       report += std::format("| {} | {} | {} |\n", c.name, ms(check), ms(build));
     }

@@ -31,17 +31,28 @@ std::expected<char, std::string> decodeOne(std::string_view &body) {
   const char e = body.front();
   body.remove_prefix(1);
   switch (e) {
-  case 'n': return '\n';
-  case 't': return '\t';
-  case 'r': return '\r';
-  case 'a': return '\a';
-  case 'b': return '\b';
-  case 'f': return '\f';
-  case 'v': return '\v';
-  case '\\': return '\\';
-  case '\'': return '\'';
-  case '"': return '"';
-  case '?': return '?';
+  case 'n':
+    return '\n';
+  case 't':
+    return '\t';
+  case 'r':
+    return '\r';
+  case 'a':
+    return '\a';
+  case 'b':
+    return '\b';
+  case 'f':
+    return '\f';
+  case 'v':
+    return '\v';
+  case '\\':
+    return '\\';
+  case '\'':
+    return '\'';
+  case '"':
+    return '"';
+  case '?':
+    return '?';
   case 'x': {
     unsigned value = 0;
     int digits = 0;
@@ -59,8 +70,8 @@ std::expected<char, std::string> decodeOne(std::string_view &body) {
   default:
     if (e >= '0' && e <= '7') {
       unsigned value = static_cast<unsigned>(e - '0');
-      for (int i = 0; i < 2 && !body.empty() && body.front() >= '0' &&
-                      body.front() <= '7';
+      for (int i = 0;
+           i < 2 && !body.empty() && body.front() >= '0' && body.front() <= '7';
            ++i) {
         value = value * 8 + static_cast<unsigned>(body.front() - '0');
         body.remove_prefix(1);
@@ -87,8 +98,8 @@ parseIntLiteral(std::string_view text) {
     digits.remove_prefix(1);
   }
   std::uint64_t value = 0;
-  const auto [end, ec] =
-      std::from_chars(digits.data(), digits.data() + digits.size(), value, base);
+  const auto [end, ec] = std::from_chars(
+      digits.data(), digits.data() + digits.size(), value, base);
   if (ec == std::errc::result_out_of_range)
     return std::unexpected("integer literal is too large");
   if (ec != std::errc() || end != digits.data() + digits.size())

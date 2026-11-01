@@ -39,8 +39,9 @@ public:
     Key() = default;
   };
 
-  Type(Key, TypeKind kind, const Type *inner = nullptr, std::uint64_t length = 0,
-       std::vector<const Type *> params = {}, bool variadic = false)
+  Type(Key, TypeKind kind, const Type *inner = nullptr,
+       std::uint64_t length = 0, std::vector<const Type *> params = {},
+       bool variadic = false)
       : kind_(kind), inner_(inner), length_(length), params_(std::move(params)),
         variadic_(variadic) {}
 
@@ -103,9 +104,8 @@ public:
 
   [[nodiscard]] const Type *pointerTo(const Type *pointee);
   [[nodiscard]] const Type *arrayOf(const Type *element, std::uint64_t length);
-  [[nodiscard]] const Type *function(const Type *ret,
-                                     std::vector<const Type *> params,
-                                     bool variadic);
+  [[nodiscard]] const Type *
+  function(const Type *ret, std::vector<const Type *> params, bool variadic);
 
 private:
   const Type *own(std::unique_ptr<Type> type);

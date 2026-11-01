@@ -1,5 +1,5 @@
-#include "Suites.h"
 #include "jia/CodeGen/CodeGen.h"
+#include "Suites.h"
 #include "jia/Lex/Lexer.h"
 #include "jia/Parse/Parser.h"
 #include "jia/Sema/Sema.h"
@@ -43,7 +43,9 @@ const TestSuite codegenSuite{
                ir("int g = 2 * 21; int a[3] = {1, 2}; char s[] = \"hi\"; "
                   "char *p = \"yo\"; int *q = &g; float f = 1;");
            t.expect(contains(out, "@g = global i32 42"), out);
-           t.expect(contains(out, "@a = global [3 x i32] [i32 1, i32 2, i32 0]"), out);
+           t.expect(
+               contains(out, "@a = global [3 x i32] [i32 1, i32 2, i32 0]"),
+               out);
            t.expect(contains(out, "@s = global [3 x i8] c\"hi\\00\""), out);
            t.expect(contains(out, "@p = global ptr @.str"), out);
            t.expect(contains(out, "@q = global ptr @g"), out);
@@ -73,8 +75,9 @@ const TestSuite codegenSuite{
            )");
            t.expect(!contains(out, "error:"), out);
            t.expect(contains(out, "call i32 (ptr, ...) @printf"), out);
-           t.expect(contains(out, "fpext float"), out); // variadic float -> double
-           t.expect(contains(out, "phi i1"), out);      // short-circuit ||, &&
+           t.expect(contains(out, "fpext float"),
+                    out);                          // variadic float -> double
+           t.expect(contains(out, "phi i1"), out); // short-circuit ||, &&
          }},
         {"missing return yields zero",
          [](Tester &t) {

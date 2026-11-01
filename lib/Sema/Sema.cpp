@@ -55,7 +55,9 @@ bool isNullConstant(const Expr &e) {
 
 class Analyzer {
 public:
-  explicit Analyzer(TypeContext &types) : types_(types) { scopes_.emplace_back(); }
+  explicit Analyzer(TypeContext &types) : types_(types) {
+    scopes_.emplace_back();
+  }
 
   Diagnostics run(std::vector<TopLevelDecl> &decls) {
     for (TopLevelDecl &decl : decls)
@@ -121,12 +123,13 @@ private:
         continue;
       }
       if (scopes_.back().contains(param.name)) {
-        error(param.loc, std::format("redefinition of parameter '{}'", param.name));
+        error(param.loc,
+              std::format("redefinition of parameter '{}'", param.name));
         continue;
       }
       param.symbol = newId();
-      scopes_.back().emplace(param.name,
-                             Symbol{param.symbol, param.type, param.isConst, false, false});
+      scopes_.back().emplace(param.name, Symbol{param.symbol, param.type,
+                                                param.isConst, false, false});
     }
     returnType_ = fn.type->returnType();
     for (Stmt &stmt : fn.body->body)
@@ -147,8 +150,8 @@ private:
       return;
     }
     var.symbol = newId();
-    scopes_.back().emplace(var.name,
-                           Symbol{var.symbol, var.type, var.isConst, false, false});
+    scopes_.back().emplace(
+        var.name, Symbol{var.symbol, var.type, var.isConst, false, false});
     if (global)
       globals_.insert(var.symbol);
     if (var.init)
@@ -160,7 +163,8 @@ private:
     if (!var.init)
       return; // reported as incomplete by the caller
     std::uint64_t length = 0;
-    if (const auto *list = std::get_if<std::vector<Initializer>>(&var.init->value))
+    if (const auto *list =
+            std::get_if<std::vector<Initializer>>(&var.init->value))
       length = list->size();
     else if (const auto *expr = std::get_if<Expr>(&var.init->value))
       if (const auto *str = expr->as<StringLiteral>())
@@ -188,7 +192,8 @@ private:
         return;
       }
       if (list->size() > target->length())
-        error((*list)[target->length()].loc, "excess elements in array initializer");
+        error((*list)[target->length()].loc,
+              "excess elements in array initializer");
       for (Initializer &item : *list)
         checkInit(item, target->element(), global);
       return;
@@ -196,8 +201,9 @@ private:
 
     if (list) {
       if (list->size() != 1) {
-        error(init.loc, list->empty() ? "scalar initializer cannot be empty"
-                                      : "excess elements in scalar initializer");
+        error(init.loc, list->empty()
+                            ? "scalar initializer cannot be empty"
+                            : "excess elements in scalar initializer");
         return;
       }
       checkInit(list->front(), target, global);
@@ -286,7 +292,8 @@ private:
     checkValue(cond);
     if (cond.type && !cond.type->isScalar())
       fail(cond, std::format("statement requires expression of scalar type "
-                             "('{}' invalid)", cond.type->str()));
+                             "('{}' invalid)",
+                             cond.type->str()));
   }
 
   void checkReturn(ReturnStmt &ret, SourceLocation loc) {
@@ -378,7 +385,8 @@ private:
       Box<Expr> base = std::move(index->base);
       Box<Expr> offset = std::move(index->index);
       const SourceLocation loc = e.loc;
-      Expr sum{.node = Binary{BinaryOp::Add, std::move(base), std::move(offset)},
+      Expr sum{.node =
+                   Binary{BinaryOp::Add, std::move(base), std::move(offset)},
                .loc = loc};
       e = Expr{.node = Unary{UnaryOp::Deref, box(std::move(sum))}, .loc = loc};
     }
@@ -387,25 +395,25 @@ private:
       return;
     }
 
-    std::visit(
-        Overloaded{
-            [&](IntLiteral &) { e.type = types_.intType(); },
-            [&](FloatLiteral &) { e.type = types_.floatType(); },
-            [&](StringLiteral &s) {
-              e.type = types_.arrayOf(types_.charType(), s.bytes.size() + 1);
-              e.category = ValueCategory::LValue;
-            },
-            [&](DeclRef &ref) { checkDeclRef(e, ref); },
-            [&](Unary &u) { checkUnary(e, u); },
-            [&](Binary &b) { checkBinary(e, b); },
-            [&](Assign &a) { checkAssign(e, a); },
-            [&](Call &c) { checkCall(e, c); },
-            [&](Cast &c) { checkCast(e, c); },
-            [](Index &) {},
-            [](SizeOfType &) {},
-            [](SizeOfExpr &) {},
-        },
-        e.node);
+    std::visit(Overloaded{
+                   [&](IntLiteral &) { e.type = types_.intType(); },
+                   [&](FloatLiteral &) { e.type = types_.floatType(); },
+                   [&](StringLiteral &s) {
+                     e.type =
+                         types_.arrayOf(types_.charType(), s.bytes.size() + 1);
+                     e.category = ValueCategory::LValue;
+                   },
+                   [&](DeclRef &ref) { checkDeclRef(e, ref); },
+                   [&](Unary &u) { checkUnary(e, u); },
+                   [&](Binary &b) { checkBinary(e, b); },
+                   [&](Assign &a) { checkAssign(e, a); },
+                   [&](Call &c) { checkCall(e, c); },
+                   [&](Cast &c) { checkCast(e, c); },
+                   [](Index &) {},
+                   [](SizeOfType &) {},
+                   [](SizeOfExpr &) {},
+               },
+               e.node);
   }
 
   void checkSizeOf(Expr &e) {
@@ -423,7 +431,8 @@ private:
     }
     const auto size = type->size();
     if (!size) {
-      fail(e, std::format("invalid application of 'sizeof' to type '{}'", type->str()));
+      fail(e, std::format("invalid application of 'sizeof' to type '{}'",
+                          type->str()));
       return;
     }
     const SourceLocation loc = e.loc;
@@ -440,7 +449,8 @@ private:
     }
     ref.symbol = symbol->id;
     e.type = symbol->type;
-    e.category = symbol->isFunction ? ValueCategory::RValue : ValueCategory::LValue;
+    e.category =
+        symbol->isFunction ? ValueCategory::RValue : ValueCategory::LValue;
   }
 
   void checkUnary(Expr &e, Unary &u) {
@@ -450,8 +460,9 @@ private:
       if (!operand.type)
         return void(e.type = nullptr);
       if (!operand.isLValue())
-        return fail(e, std::format("cannot take the address of an rvalue of type '{}'",
-                                   operand.type->str()));
+        return fail(
+            e, std::format("cannot take the address of an rvalue of type '{}'",
+                           operand.type->str()));
       e.type = types_.pointerTo(operand.type);
       return;
     }
@@ -463,21 +474,25 @@ private:
     case UnaryOp::Plus:
     case UnaryOp::Minus:
       if (!operand.type->isArithmetic())
-        return fail(e, std::format("invalid argument type '{}' to unary expression",
-                                   operand.type->str()));
+        return fail(
+            e, std::format("invalid argument type '{}' to unary expression",
+                           operand.type->str()));
       promote(operand);
       e.type = operand.type;
       return;
     case UnaryOp::Not:
       if (!operand.type->isScalar())
-        return fail(e, std::format("invalid argument type '{}' to unary expression",
-                                   operand.type->str()));
+        return fail(
+            e, std::format("invalid argument type '{}' to unary expression",
+                           operand.type->str()));
       e.type = types_.intType();
       return;
     case UnaryOp::Deref:
       if (!operand.type->isPointer())
-        return fail(e, std::format("indirection requires pointer operand ('{}' invalid)",
-                                   operand.type->str()));
+        return fail(
+            e,
+            std::format("indirection requires pointer operand ('{}' invalid)",
+                        operand.type->str()));
       if (operand.type->pointee()->isVoid())
         return fail(e, "cannot dereference a 'void *' pointer");
       e.type = operand.type->pointee();
@@ -496,8 +511,9 @@ private:
     Expr &l = *b.lhs, &r = *b.rhs;
     const Type *lt = l.type, *rt = r.type;
     const auto invalid = [&] {
-      fail(e, std::format("invalid operands to binary expression ('{}' and '{}')",
-                          lt->str(), rt->str()));
+      fail(e,
+           std::format("invalid operands to binary expression ('{}' and '{}')",
+                       lt->str(), rt->str()));
     };
     const auto pointerArithmeticOk = [&](const Type *ptr) {
       if (ptr->pointee()->size())
@@ -572,8 +588,10 @@ private:
       }
       if (lt->isPointer() && rt->isPointer()) {
         if (lt != rt && !lt->pointee()->isVoid() && !rt->pointee()->isVoid())
-          return fail(e, std::format("comparison of distinct pointer types ('{}' and '{}')",
-                                     lt->str(), rt->str()));
+          return fail(
+              e, std::format(
+                     "comparison of distinct pointer types ('{}' and '{}')",
+                     lt->str(), rt->str()));
         if (lt != rt)
           wrap(r, CastKind::PointerCast, lt);
         return;
@@ -595,12 +613,14 @@ private:
     if (!target.isLValue())
       return fail(e, "expression is not assignable");
     if (target.type->isArray())
-      return fail(e, std::format("array type '{}' is not assignable", target.type->str()));
+      return fail(e, std::format("array type '{}' is not assignable",
+                                 target.type->str()));
     if (const auto *ref = target.as<DeclRef>()) {
       const Symbol *symbol = lookup(ref->name);
       if (symbol && symbol->isConst)
         return fail(e, std::format("cannot assign to variable '{}' with "
-                                   "const-qualified type", ref->name));
+                                   "const-qualified type",
+                                   ref->name));
     }
     if (!convert(*a.value, target.type, "assigning to"))
       return void(e.type = nullptr);
@@ -621,8 +641,10 @@ private:
     const Type *fn = callee.type;
     const std::size_t expected = fn->params().size(), given = call.args.size();
     if (given < expected || (given > expected && !fn->isVariadic()))
-      return fail(e, std::format("too {} arguments to function call, expected {}, have {}",
-                                 given < expected ? "few" : "many", expected, given));
+      return fail(
+          e,
+          std::format("too {} arguments to function call, expected {}, have {}",
+                      given < expected ? "few" : "many", expected, given));
     bool ok = true;
     for (std::size_t i = 0; i < given; ++i) {
       Expr &arg = call.args[i];
@@ -658,7 +680,8 @@ private:
     else if (from->isPointer() && to->isInteger())
       cast.kind = CastKind::PointerToInt;
     else
-      fail(e, std::format("cannot cast from '{}' to '{}'", from->str(), to->str()));
+      fail(e, std::format("cannot cast from '{}' to '{}'", from->str(),
+                          to->str()));
   }
 
   TypeContext &types_;

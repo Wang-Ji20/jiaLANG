@@ -52,39 +52,61 @@ Opt foldBinary(BinaryOp op, ConstValue l, ConstValue r) {
     // Wrap instead of overflowing, which would be undefined behaviour.
     const auto a = static_cast<std::uint64_t>(*std::get_if<std::int64_t>(&l));
     const auto b = static_cast<std::uint64_t>(*std::get_if<std::int64_t>(&r));
-    const auto sa = *std::get_if<std::int64_t>(&l), sb = *std::get_if<std::int64_t>(&r);
+    const auto sa = *std::get_if<std::int64_t>(&l),
+               sb = *std::get_if<std::int64_t>(&r);
     switch (op) {
-    case BinaryOp::Add: return static_cast<std::int64_t>(a + b);
-    case BinaryOp::Sub: return static_cast<std::int64_t>(a - b);
-    case BinaryOp::Mul: return static_cast<std::int64_t>(a * b);
+    case BinaryOp::Add:
+      return static_cast<std::int64_t>(a + b);
+    case BinaryOp::Sub:
+      return static_cast<std::int64_t>(a - b);
+    case BinaryOp::Mul:
+      return static_cast<std::int64_t>(a * b);
     case BinaryOp::Div:
     case BinaryOp::Rem:
       if (sb == 0 ||
           (sa == std::numeric_limits<std::int64_t>::min() && sb == -1))
         return std::nullopt;
       return op == BinaryOp::Div ? sa / sb : sa % sb;
-    case BinaryOp::Lt: return std::int64_t{sa < sb};
-    case BinaryOp::Gt: return std::int64_t{sa > sb};
-    case BinaryOp::Le: return std::int64_t{sa <= sb};
-    case BinaryOp::Ge: return std::int64_t{sa >= sb};
-    case BinaryOp::Eq: return std::int64_t{sa == sb};
-    case BinaryOp::Ne: return std::int64_t{sa != sb};
-    default: return std::nullopt;
+    case BinaryOp::Lt:
+      return std::int64_t{sa < sb};
+    case BinaryOp::Gt:
+      return std::int64_t{sa > sb};
+    case BinaryOp::Le:
+      return std::int64_t{sa <= sb};
+    case BinaryOp::Ge:
+      return std::int64_t{sa >= sb};
+    case BinaryOp::Eq:
+      return std::int64_t{sa == sb};
+    case BinaryOp::Ne:
+      return std::int64_t{sa != sb};
+    default:
+      return std::nullopt;
     }
   }
   const double a = asDouble(l), b = asDouble(r);
   switch (op) {
-  case BinaryOp::Add: return a + b;
-  case BinaryOp::Sub: return a - b;
-  case BinaryOp::Mul: return a * b;
-  case BinaryOp::Div: return a / b;
-  case BinaryOp::Lt: return std::int64_t{a < b};
-  case BinaryOp::Gt: return std::int64_t{a > b};
-  case BinaryOp::Le: return std::int64_t{a <= b};
-  case BinaryOp::Ge: return std::int64_t{a >= b};
-  case BinaryOp::Eq: return std::int64_t{a == b};
-  case BinaryOp::Ne: return std::int64_t{a != b};
-  default: return std::nullopt; // % on floats is not constant
+  case BinaryOp::Add:
+    return a + b;
+  case BinaryOp::Sub:
+    return a - b;
+  case BinaryOp::Mul:
+    return a * b;
+  case BinaryOp::Div:
+    return a / b;
+  case BinaryOp::Lt:
+    return std::int64_t{a < b};
+  case BinaryOp::Gt:
+    return std::int64_t{a > b};
+  case BinaryOp::Le:
+    return std::int64_t{a <= b};
+  case BinaryOp::Ge:
+    return std::int64_t{a >= b};
+  case BinaryOp::Eq:
+    return std::int64_t{a == b};
+  case BinaryOp::Ne:
+    return std::int64_t{a != b};
+  default:
+    return std::nullopt; // % on floats is not constant
   }
 }
 
@@ -119,11 +141,11 @@ Opt fold(const Expr &expr) {
             return foldBinary(b.op, *l, *r);
           },
           [&](const Cast &c) -> Opt {
-            const bool arithmetic =
-                c.kind == CastKind::Unresolved || c.kind == CastKind::NoOp ||
-                c.kind == CastKind::IntegralCast ||
-                c.kind == CastKind::IntToFloat ||
-                c.kind == CastKind::FloatToInt;
+            const bool arithmetic = c.kind == CastKind::Unresolved ||
+                                    c.kind == CastKind::NoOp ||
+                                    c.kind == CastKind::IntegralCast ||
+                                    c.kind == CastKind::IntToFloat ||
+                                    c.kind == CastKind::FloatToInt;
             if (!arithmetic)
               return std::nullopt;
             return evaluateConstant(*c.operand);

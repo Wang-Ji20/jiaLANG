@@ -58,20 +58,34 @@ struct BinaryInfo {
 
 std::optional<BinaryInfo> binaryInfo(TokenKind kind) {
   switch (kind) {
-  case TokenKind::PipePipe: return BinaryInfo{1, BinaryOp::LogOr};
-  case TokenKind::AmpAmp: return BinaryInfo{2, BinaryOp::LogAnd};
-  case TokenKind::EqualEqual: return BinaryInfo{3, BinaryOp::Eq};
-  case TokenKind::ExclaimEqual: return BinaryInfo{3, BinaryOp::Ne};
-  case TokenKind::Less: return BinaryInfo{4, BinaryOp::Lt};
-  case TokenKind::Greater: return BinaryInfo{4, BinaryOp::Gt};
-  case TokenKind::LessEqual: return BinaryInfo{4, BinaryOp::Le};
-  case TokenKind::GreaterEqual: return BinaryInfo{4, BinaryOp::Ge};
-  case TokenKind::Plus: return BinaryInfo{5, BinaryOp::Add};
-  case TokenKind::Minus: return BinaryInfo{5, BinaryOp::Sub};
-  case TokenKind::Star: return BinaryInfo{6, BinaryOp::Mul};
-  case TokenKind::Slash: return BinaryInfo{6, BinaryOp::Div};
-  case TokenKind::Percent: return BinaryInfo{6, BinaryOp::Rem};
-  default: return std::nullopt;
+  case TokenKind::PipePipe:
+    return BinaryInfo{1, BinaryOp::LogOr};
+  case TokenKind::AmpAmp:
+    return BinaryInfo{2, BinaryOp::LogAnd};
+  case TokenKind::EqualEqual:
+    return BinaryInfo{3, BinaryOp::Eq};
+  case TokenKind::ExclaimEqual:
+    return BinaryInfo{3, BinaryOp::Ne};
+  case TokenKind::Less:
+    return BinaryInfo{4, BinaryOp::Lt};
+  case TokenKind::Greater:
+    return BinaryInfo{4, BinaryOp::Gt};
+  case TokenKind::LessEqual:
+    return BinaryInfo{4, BinaryOp::Le};
+  case TokenKind::GreaterEqual:
+    return BinaryInfo{4, BinaryOp::Ge};
+  case TokenKind::Plus:
+    return BinaryInfo{5, BinaryOp::Add};
+  case TokenKind::Minus:
+    return BinaryInfo{5, BinaryOp::Sub};
+  case TokenKind::Star:
+    return BinaryInfo{6, BinaryOp::Mul};
+  case TokenKind::Slash:
+    return BinaryInfo{6, BinaryOp::Div};
+  case TokenKind::Percent:
+    return BinaryInfo{6, BinaryOp::Rem};
+  default:
+    return std::nullopt;
   }
 }
 
@@ -173,12 +187,23 @@ private:
       const Token &tok = advance();
       const Type *type = nullptr;
       switch (tok.kind) {
-      case TokenKind::KwConst: spec.isConst = true; continue;
-      case TokenKind::KwVoid: type = types_.voidType(); break;
-      case TokenKind::KwChar: type = types_.charType(); break;
-      case TokenKind::KwInt: type = types_.intType(); break;
-      case TokenKind::KwFloat: type = types_.floatType(); break;
-      default: break;
+      case TokenKind::KwConst:
+        spec.isConst = true;
+        continue;
+      case TokenKind::KwVoid:
+        type = types_.voidType();
+        break;
+      case TokenKind::KwChar:
+        type = types_.charType();
+        break;
+      case TokenKind::KwInt:
+        type = types_.intType();
+        break;
+      case TokenKind::KwFloat:
+        type = types_.floatType();
+        break;
+      default:
+        break;
       }
       if (spec.base) {
         error(tok.loc, "cannot combine type specifiers");
@@ -187,7 +212,8 @@ private:
       spec.base = type;
     }
     if (!spec.base) {
-      error(peek().loc, std::format("expected a type before {}", describe(peek())));
+      error(peek().loc,
+            std::format("expected a type before {}", describe(peek())));
       return std::nullopt;
     }
     return spec;
@@ -205,9 +231,8 @@ private:
 
     std::optional<Declarator> inner;
     const bool nested =
-        check(TokenKind::LParen) &&
-        (!abstract || peek(1).is(TokenKind::Star) ||
-         peek(1).is(TokenKind::Identifier));
+        check(TokenKind::LParen) && (!abstract || peek(1).is(TokenKind::Star) ||
+                                     peek(1).is(TokenKind::Identifier));
     if (nested) {
       advance();
       inner = parseDeclarator(abstract);
@@ -217,7 +242,8 @@ private:
       decl.loc = peek().loc;
       decl.name = std::string(advance().text);
     } else if (!abstract) {
-      error(peek().loc, std::format("expected identifier before {}", describe(peek())));
+      error(peek().loc,
+            std::format("expected identifier before {}", describe(peek())));
       return std::nullopt;
     }
 
@@ -244,7 +270,8 @@ private:
     if (inner) {
       decl.name = std::move(inner->name);
       decl.loc = inner->loc;
-      std::move(inner->ops.begin(), inner->ops.end(), std::back_inserter(decl.ops));
+      std::move(inner->ops.begin(), inner->ops.end(),
+                std::back_inserter(decl.ops));
     }
     return decl;
   }
@@ -327,14 +354,16 @@ private:
             } else if constexpr (std::is_same_v<Op, ArrayOp>) {
               if (t->isVoid() || t->isFunction() ||
                   (t->isArray() && t->length() == 0)) {
-                error(out.loc, std::format("array has invalid element type '{}'",
-                                           t->str()));
+                error(out.loc,
+                      std::format("array has invalid element type '{}'",
+                                  t->str()));
                 return false;
               }
               out.type = types_.arrayOf(t, op.length);
             } else {
               if (t->isArray() || t->isFunction()) {
-                error(out.loc, std::format("function cannot return '{}'", t->str()));
+                error(out.loc,
+                      std::format("function cannot return '{}'", t->str()));
                 return false;
               }
               if (i + 1 != decl.ops.size()) {
@@ -396,21 +425,23 @@ private:
       auto body = parseCompound();
       if (!body)
         return false;
-      out.emplace_back(FunctionDecl{.name = std::move(first->name),
-                                    .type = first->type,
-                                    .params = std::move(first->function->params),
-                                    .body = std::move(*body),
-                                    .loc = first->loc});
+      out.emplace_back(
+          FunctionDecl{.name = std::move(first->name),
+                       .type = first->type,
+                       .params = std::move(first->function->params),
+                       .body = std::move(*body),
+                       .loc = first->loc});
       return true;
     }
 
     std::optional<Declared> current = std::move(first);
     while (true) {
       if (current->function) {
-        out.emplace_back(FunctionDecl{.name = std::move(current->name),
-                                      .type = current->type,
-                                      .params = std::move(current->function->params),
-                                      .loc = current->loc});
+        out.emplace_back(
+            FunctionDecl{.name = std::move(current->name),
+                         .type = current->type,
+                         .params = std::move(current->function->params),
+                         .loc = current->loc});
       } else {
         auto var = finishVarDecl(*spec, std::move(*current));
         if (!var)
@@ -430,9 +461,11 @@ private:
   }
 
   /// Builds a VarDecl and parses its optional "= initializer".
-  std::optional<VarDecl> finishVarDecl(const DeclSpec &spec, Declared declared) {
+  std::optional<VarDecl> finishVarDecl(const DeclSpec &spec,
+                                       Declared declared) {
     if (declared.type->isVoid()) {
-      error(declared.loc, std::format("variable '{}' has type 'void'", declared.name));
+      error(declared.loc,
+            std::format("variable '{}' has type 'void'", declared.name));
       return std::nullopt;
     }
     VarDecl var{.name = std::move(declared.name),
@@ -637,9 +670,9 @@ private:
       auto rhs = parseBinary(info->precedence + 1);
       if (!rhs)
         return std::nullopt;
-      lhs = Expr{.node = Binary{info->op, box(std::move(*lhs)),
-                                box(std::move(*rhs))},
-                 .loc = loc};
+      lhs = Expr{
+          .node = Binary{info->op, box(std::move(*lhs)), box(std::move(*rhs))},
+          .loc = loc};
     }
     return lhs;
   }
@@ -648,12 +681,23 @@ private:
     const SourceLocation loc = peek().loc;
     std::optional<UnaryOp> op;
     switch (peek().kind) {
-    case TokenKind::Plus: op = UnaryOp::Plus; break;
-    case TokenKind::Minus: op = UnaryOp::Minus; break;
-    case TokenKind::Exclaim: op = UnaryOp::Not; break;
-    case TokenKind::Star: op = UnaryOp::Deref; break;
-    case TokenKind::Amp: op = UnaryOp::AddrOf; break;
-    default: break;
+    case TokenKind::Plus:
+      op = UnaryOp::Plus;
+      break;
+    case TokenKind::Minus:
+      op = UnaryOp::Minus;
+      break;
+    case TokenKind::Exclaim:
+      op = UnaryOp::Not;
+      break;
+    case TokenKind::Star:
+      op = UnaryOp::Deref;
+      break;
+    case TokenKind::Amp:
+      op = UnaryOp::AddrOf;
+      break;
+    default:
+      break;
     }
     if (op) {
       advance();
@@ -685,9 +729,10 @@ private:
       auto operand = parseUnary();
       if (!operand)
         return std::nullopt;
-      return Expr{.node = Cast{CastKind::Unresolved, false, box(std::move(*operand))},
-                  .loc = loc,
-                  .type = *type};
+      return Expr{
+          .node = Cast{CastKind::Unresolved, false, box(std::move(*operand))},
+          .loc = loc,
+          .type = *type};
     }
     return parsePostfix();
   }
@@ -717,8 +762,9 @@ private:
         auto index = parseExpr();
         if (!index || !expect(TokenKind::RSquare))
           return std::nullopt;
-        expr = Expr{.node = Index{box(std::move(*expr)), box(std::move(*index))},
-                    .loc = loc};
+        expr =
+            Expr{.node = Index{box(std::move(*expr)), box(std::move(*index))},
+                 .loc = loc};
       } else {
         return expr;
       }
@@ -739,11 +785,13 @@ private:
         error(loc, value.error());
         return std::nullopt;
       }
-      if (*value > static_cast<std::uint64_t>(std::numeric_limits<std::int32_t>::max())) {
+      if (*value > static_cast<std::uint64_t>(
+                       std::numeric_limits<std::int32_t>::max())) {
         error(loc, "integer literal is too large for type 'int'");
         return std::nullopt;
       }
-      return Expr{.node = IntLiteral{static_cast<std::int64_t>(*value)}, .loc = loc};
+      return Expr{.node = IntLiteral{static_cast<std::int64_t>(*value)},
+                  .loc = loc};
     }
     case TokenKind::FloatLiteral: {
       advance();
@@ -762,7 +810,8 @@ private:
         return std::nullopt;
       }
       // As in C, a character constant has type int.
-      return Expr{.node = IntLiteral{static_cast<signed char>(*value)}, .loc = loc};
+      return Expr{.node = IntLiteral{static_cast<signed char>(*value)},
+                  .loc = loc};
     }
     case TokenKind::StringLiteral: {
       std::string bytes;
