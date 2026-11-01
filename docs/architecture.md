@@ -28,7 +28,7 @@ only the libraries below it in this table.
 | `jiaSema` | `jia/Sema/` | Name resolution, type checking, implicit conversions | planned |
 | `jiaParse` | `jia/Parse/` | Tokens → AST | planned |
 | `jiaAST` | `jia/AST/` | Tree and type data structures, AST dumper, constant folding | planned |
-| `jiaLex` | `jia/Lex/` | Source text → tokens; literal decoding | planned |
+| `jiaLex` | `jia/Lex/` | Source text → tokens; literal decoding | done |
 | `jiaBasic` | `jia/Basic/` | Source locations, diagnostics, `Result<T>` | done |
 
 ## Directory layout

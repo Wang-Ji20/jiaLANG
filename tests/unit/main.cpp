@@ -21,7 +21,7 @@ void Tester::fail(const std::string &message, std::source_location loc) {
 int main(int argc, char **argv) {
   using namespace jia::test;
   const std::string_view filter = argc > 1 ? argv[1] : "";
-  const TestSuite *suites[] = {&basicSuite};
+  const TestSuite *suites[] = {&basicSuite, &lexerSuite};
 
   int ran = 0, failed = 0;
   for (const TestSuite *suite : suites) {

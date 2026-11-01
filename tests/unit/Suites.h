@@ -6,5 +6,6 @@
 namespace jia::test {
 
 extern const TestSuite basicSuite;
+extern const TestSuite lexerSuite;
 
 } // namespace jia::test

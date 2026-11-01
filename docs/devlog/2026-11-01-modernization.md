@@ -19,3 +19,4 @@ the groundwork for a C compiler that can build Redis.
   diagnostics, `Result<T>`), plus a macro-free unit test runner. Lesson:
   a namespace-scope `const` object has internal linkage, so test suites
   must be declared `extern` in a shared header (`tests/unit/Suites.h`).
+- Wrote the hand-written lexer (`jiaLex`) and its design note.

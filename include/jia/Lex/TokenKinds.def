@@ -1,0 +1,69 @@
+//===- TokenKinds.def - The token table -------------------------*- C++ -*-===//
+//
+// Every token kind, listed once. Includers define TOKEN (and optionally
+// KEYWORD or PUNCT) to expand the table into whatever they need: an enum,
+// a name table, a keyword lookup. This is the one macro pattern our C++
+// subset allows (see docs/design/cpp-subset.md).
+//
+//===----------------------------------------------------------------------===//
+#ifndef TOKEN
+#define TOKEN(Name, Spelling)
+#endif
+#ifndef KEYWORD
+#define KEYWORD(Name, Spelling) TOKEN(Name, Spelling)
+#endif
+#ifndef PUNCT
+#define PUNCT(Name, Spelling) TOKEN(Name, Spelling)
+#endif
+
+TOKEN(Eof, "end of file")
+TOKEN(Identifier, "identifier")
+TOKEN(IntLiteral, "integer literal")
+TOKEN(FloatLiteral, "floating literal")
+TOKEN(CharLiteral, "character literal")
+TOKEN(StringLiteral, "string literal")
+
+KEYWORD(KwBreak, "break")
+KEYWORD(KwChar, "char")
+KEYWORD(KwConst, "const")
+KEYWORD(KwContinue, "continue")
+KEYWORD(KwElse, "else")
+KEYWORD(KwFloat, "float")
+KEYWORD(KwIf, "if")
+KEYWORD(KwInt, "int")
+KEYWORD(KwReturn, "return")
+KEYWORD(KwSizeof, "sizeof")
+KEYWORD(KwVoid, "void")
+KEYWORD(KwWhile, "while")
+
+// Longer spellings must come before their prefixes ("..." before ".",
+// "==" before "=") because the lexer takes the first match.
+PUNCT(Ellipsis, "...")
+PUNCT(EqualEqual, "==")
+PUNCT(ExclaimEqual, "!=")
+PUNCT(LessEqual, "<=")
+PUNCT(GreaterEqual, ">=")
+PUNCT(AmpAmp, "&&")
+PUNCT(PipePipe, "||")
+PUNCT(Plus, "+")
+PUNCT(Minus, "-")
+PUNCT(Star, "*")
+PUNCT(Slash, "/")
+PUNCT(Percent, "%")
+PUNCT(Exclaim, "!")
+PUNCT(Equal, "=")
+PUNCT(Amp, "&")
+PUNCT(Less, "<")
+PUNCT(Greater, ">")
+PUNCT(Comma, ",")
+PUNCT(Semi, ";")
+PUNCT(LParen, "(")
+PUNCT(RParen, ")")
+PUNCT(LSquare, "[")
+PUNCT(RSquare, "]")
+PUNCT(LBrace, "{")
+PUNCT(RBrace, "}")
+
+#undef TOKEN
+#undef KEYWORD
+#undef PUNCT
