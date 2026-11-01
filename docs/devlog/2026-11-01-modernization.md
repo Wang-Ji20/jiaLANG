@@ -15,3 +15,7 @@ the groundwork for a C compiler that can build Redis.
   ([design/cpp-subset.md](../design/cpp-subset.md)).
 - Toolchain on the dev machine: g++ 16, clang 23, LLVM 23.1.4
   (`llvm23-devel`), CMake 4.4, Ninja, FileCheck, Python 3.13.
+- Added the CMake build and the `jiaBasic` library (source locations,
+  diagnostics, `Result<T>`), plus a macro-free unit test runner. Lesson:
+  a namespace-scope `const` object has internal linkage, so test suites
+  must be declared `extern` in a shared header (`tests/unit/Suites.h`).
